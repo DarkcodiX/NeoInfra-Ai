@@ -47,10 +47,6 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
-              <span className="text-sm font-medium text-white">Professional Design Tools</span>
-            </div>
-            
             <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight drop-shadow-2xl">
               Get a Designer<br />Space You'll Love
             </h1>

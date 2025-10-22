@@ -38,7 +38,7 @@ function App() {
   }
 
   return (
-    <div className="w-full h-screen font-sans">
+    <div className="w-full h-screen font-sans fixed inset-0 overflow-hidden">
       <FloorPlanner />
     </div>
   );
