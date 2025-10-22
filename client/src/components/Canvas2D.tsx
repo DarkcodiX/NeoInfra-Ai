@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useFloorPlan } from '../lib/stores/useFloorPlan';
 import { useFurniture } from '../lib/stores/useFurniture';
 import { Point, Room } from '../types/floor-plan';
+import { furnitureCategories } from '../lib/furniture-data';
 
 export function Canvas2D() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -29,6 +30,7 @@ export function Canvas2D() {
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPoint, setLastPanPoint] = useState<Point | null>(null);
   const [currentDrawing, setCurrentDrawing] = useState<Point[]>([]);
+  const [measurements, setMeasurements] = useState<Array<{start: Point, end: Point}>>([]);
 
   const pixelToMeter = useCallback((x: number, y: number): Point => {
     return {
@@ -120,13 +122,22 @@ export function Canvas2D() {
     });
   }, [currentPlan, selectedItem, meterToPixel, scale]);
 
+  const getFurnitureDimensions = (furnitureType: string) => {
+    for (const category of furnitureCategories) {
+      const found = category.items.find(f => f.id === furnitureType);
+      if (found) return found.dimensions;
+    }
+    return { width: 1, depth: 1, height: 1 }; // Default
+  };
+
   const drawFurniture = useCallback((ctx: CanvasRenderingContext2D) => {
     if (!currentPlan) return;
     
     currentPlan.furniture.forEach(item => {
       const pos = meterToPixel(item.position.x, item.position.y);
-      const width = (item.scale.x || 1) * 1 * scale; // Default 1m width
-      const height = (item.scale.y || 1) * 1 * scale; // Default 1m height
+      const dims = getFurnitureDimensions(item.type);
+      const width = (item.scale.x || 1) * dims.width * scale;
+      const depth = (item.scale.y || 1) * dims.depth * scale;
       
       ctx.save();
       ctx.translate(pos.x, pos.y);
@@ -137,18 +148,63 @@ export function Canvas2D() {
       ctx.strokeStyle = selectedItem === item.id ? '#3B82F6' : '#4A5568';
       ctx.lineWidth = selectedItem === item.id ? 3 : 1;
       
-      ctx.fillRect(-width/2, -height/2, width, height);
-      ctx.strokeRect(-width/2, -height/2, width, height);
+      ctx.fillRect(-width/2, -depth/2, width, depth);
+      ctx.strokeRect(-width/2, -depth/2, width, depth);
       
       // Draw furniture label
       ctx.fillStyle = '#FFFFFF';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(item.name, 0, 3);
+      ctx.textBaseline = 'middle';
+      ctx.fillText(item.name, 0, 0);
       
       ctx.restore();
     });
   }, [currentPlan, selectedItem, meterToPixel, scale]);
+
+  const drawMeasurements = useCallback((ctx: CanvasRenderingContext2D) => {
+    measurements.forEach(measurement => {
+      const start = meterToPixel(measurement.start.x, measurement.start.y);
+      const end = meterToPixel(measurement.end.x, measurement.end.y);
+      
+      // Calculate distance
+      const dx = measurement.end.x - measurement.start.x;
+      const dy = measurement.end.y - measurement.start.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      // Draw line
+      ctx.strokeStyle = '#10B981';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+      
+      // Draw endpoints
+      ctx.fillStyle = '#10B981';
+      ctx.beginPath();
+      ctx.arc(start.x, start.y, 4, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(end.x, end.y, 4, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      // Draw distance label
+      const midX = (start.x + end.x) / 2;
+      const midY = (start.y + end.y) / 2;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(midX - 30, midY - 12, 60, 24);
+      ctx.strokeStyle = '#10B981';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(midX - 30, midY - 12, 60, 24);
+      ctx.fillStyle = '#10B981';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${distance.toFixed(2)}m`, midX, midY);
+    });
+  }, [measurements, meterToPixel]);
 
   const drawCurrentDrawing = useCallback((ctx: CanvasRenderingContext2D) => {
     if (currentDrawing.length === 0) return;
@@ -192,8 +248,9 @@ export function Canvas2D() {
     drawRooms(ctx);
     drawWalls(ctx);
     drawFurniture(ctx);
+    drawMeasurements(ctx);
     drawCurrentDrawing(ctx);
-  }, [drawGrid, drawRooms, drawWalls, drawFurniture, drawCurrentDrawing]);
+  }, [drawGrid, drawRooms, drawWalls, drawFurniture, drawMeasurements, drawCurrentDrawing]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -253,6 +310,22 @@ export function Canvas2D() {
         }
         break;
         
+      case 'measure':
+        if (isDrawing && currentDrawing.length === 1) {
+          // Complete measurement
+          setMeasurements(prev => [...prev, {
+            start: currentDrawing[0],
+            end: snappedPoint
+          }]);
+          setIsDrawing(false);
+          setCurrentDrawing([]);
+        } else {
+          // Start measurement
+          setIsDrawing(true);
+          setCurrentDrawing([snappedPoint]);
+        }
+        break;
+        
       case 'select':
         // Find clicked item
         let clickedItem: string | null = null;
@@ -261,11 +334,12 @@ export function Canvas2D() {
           // Check furniture first (top layer)
           for (const item of currentPlan.furniture) {
             const itemPos = meterToPixel(item.position.x, item.position.y);
-            const width = (item.scale.x || 1) * 1 * scale;
-            const height = (item.scale.y || 1) * 1 * scale;
+            const dims = getFurnitureDimensions(item.type);
+            const width = (item.scale.x || 1) * dims.width * scale;
+            const depth = (item.scale.y || 1) * dims.depth * scale;
             
             if (x >= itemPos.x - width/2 && x <= itemPos.x + width/2 &&
-                y >= itemPos.y - height/2 && y <= itemPos.y + height/2) {
+                y >= itemPos.y - depth/2 && y <= itemPos.y + depth/2) {
               clickedItem = item.id;
               break;
             }
@@ -378,12 +452,15 @@ export function Canvas2D() {
       />
       
       {/* Instructions */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-sm">
+      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-sm max-w-xs">
         {activeTool === 'room' && (
           <p>Click to add points, double-click to complete room</p>
         )}
         {activeTool === 'wall' && (
           <p>Click start point, then end point to create wall</p>
+        )}
+        {activeTool === 'measure' && (
+          <p>Click start point, then end point to measure distance</p>
         )}
         {activeTool === 'furniture' && draggedFurniture && (
           <p>Click to place {draggedFurniture.name}</p>
@@ -395,6 +472,19 @@ export function Canvas2D() {
           Scroll to zoom • Shift+drag to pan • Middle-click to pan
         </p>
       </div>
+      
+      {/* Measurement Controls */}
+      {measurements.length > 0 && (
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
+          <p className="text-xs font-semibold mb-2">Measurements: {measurements.length}</p>
+          <button
+            onClick={() => setMeasurements([])}
+            className="text-xs px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
     </div>
   );
 }

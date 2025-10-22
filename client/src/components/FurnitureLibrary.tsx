@@ -34,13 +34,18 @@ export function FurnitureLibrary() {
                     <Button
                       key={item.id}
                       variant={selectedFurniture?.id === item.id ? "default" : "outline"}
-                      className="h-20 flex-col gap-2 p-2"
+                      className="h-24 flex-col gap-1 p-2"
                       onClick={() => handleFurnitureSelect(item)}
                     >
                       <div className="text-2xl">{item.icon}</div>
                       <div className="text-xs text-center leading-tight">
                         {item.name}
                       </div>
+                      {item.price && (
+                        <div className="text-xs font-semibold text-green-600">
+                          ${item.price}
+                        </div>
+                      )}
                     </Button>
                   ))}
                 </div>

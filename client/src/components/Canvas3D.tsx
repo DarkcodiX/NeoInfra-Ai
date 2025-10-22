@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useFloorPlan } from '../lib/stores/useFloorPlan';
+import { furnitureCategories } from '../lib/furniture-data';
 
 // 3D Room Component
 function Room3D({ room }: { room: any }) {
@@ -21,9 +22,13 @@ function Room3D({ room }: { room: any }) {
   return (
     <group>
       {/* Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <shapeGeometry args={[floorGeometry]} />
-        <meshStandardMaterial color={room.color} />
+        <meshStandardMaterial 
+          color={room.color}
+          roughness={0.7}
+          metalness={0.1}
+        />
       </mesh>
       
       {/* Walls */}
@@ -44,9 +49,15 @@ function Room3D({ room }: { room: any }) {
               (point[2] + nextPoint[2]) / 2
             ]}
             rotation={[0, wallAngle, 0]}
+            castShadow
+            receiveShadow
           >
             <boxGeometry args={[wallLength, 2.5, 0.2]} />
-            <meshStandardMaterial color={room.wallColor} />
+            <meshStandardMaterial 
+              color={room.wallColor}
+              roughness={0.9}
+              metalness={0.05}
+            />
           </mesh>
         );
       })}
@@ -71,28 +82,32 @@ function Room3D({ room }: { room: any }) {
 
 // 3D Furniture Component
 function Furniture3D({ item }: { item: any }) {
-  const getFurnitureGeometry = (type: string) => {
-    switch (type) {
-      case 'bed':
-        return <boxGeometry args={[1.6, 0.5, 2.0]} />;
-      case 'sofa':
-        return <boxGeometry args={[2.0, 0.8, 0.9]} />;
-      case 'chair':
-        return <boxGeometry args={[0.6, 1.2, 0.6]} />;
-      case 'table':
-        return <boxGeometry args={[1.2, 0.75, 0.6]} />;
-      default:
-        return <boxGeometry args={[1, 1, 1]} />;
+  const getFurnitureDimensions = (furnitureType: string) => {
+    for (const category of furnitureCategories) {
+      const found = category.items.find(f => f.id === furnitureType);
+      if (found) return found.dimensions;
     }
+    return { width: 1, depth: 1, height: 1 }; // Default
   };
+
+  const dims = getFurnitureDimensions(item.type);
+  const scaledWidth = (item.scale?.x || 1) * dims.width;
+  const scaledHeight = (item.scale?.y || 1) * dims.height;
+  const scaledDepth = (item.scale?.x || 1) * dims.depth;
 
   return (
     <mesh
-      position={[item.position.x, 0.5, item.position.y]}
+      position={[item.position.x, scaledHeight / 2, item.position.y]}
       rotation={[0, (item.rotation || 0) * Math.PI / 180, 0]}
+      castShadow
+      receiveShadow
     >
-      {getFurnitureGeometry(item.type)}
-      <meshStandardMaterial color={item.color || '#8B4513'} />
+      <boxGeometry args={[scaledWidth, scaledHeight, scaledDepth]} />
+      <meshStandardMaterial 
+        color={item.color || '#8B4513'}
+        roughness={0.6}
+        metalness={0.2}
+      />
     </mesh>
   );
 }
@@ -111,19 +126,30 @@ function Scene3D() {
 
   return (
     <>
-      {/* Lighting */}
-      <ambientLight intensity={0.4} />
+      {/* Lighting - Enhanced */}
+      <ambientLight intensity={0.5} />
       <directionalLight
-        position={[10, 10, 5]}
-        intensity={1}
-        shadow-mapSize={[2048, 2048]}
+        position={[10, 15, 5]}
+        intensity={1.2}
         castShadow
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-far={50}
+        shadow-camera-left={-20}
+        shadow-camera-right={20}
+        shadow-camera-top={20}
+        shadow-camera-bottom={-20}
       />
+      <hemisphereLight args={['#ffffff', '#444444', 0.3]} />
+      <pointLight position={[-10, 10, -10]} intensity={0.5} color="#ffeedd" />
       
-      {/* Ground plane */}
+      {/* Ground plane with better material */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[20, 20]} />
-        <meshStandardMaterial color="#f0f0f0" />
+        <planeGeometry args={[50, 50]} />
+        <meshStandardMaterial 
+          color="#e8e8e8" 
+          roughness={0.8}
+          metalness={0.1}
+        />
       </mesh>
       
       {/* Rooms */}

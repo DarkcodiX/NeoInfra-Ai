@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useFloorPlan } from '../lib/stores/useFloorPlan';
@@ -12,7 +12,8 @@ import {
   Grid,
   Save,
   FolderOpen,
-  Plus
+  Plus,
+  Download
 } from 'lucide-react';
 
 const toolIcons: Record<Tool, any> = {
@@ -32,7 +33,8 @@ export function Toolbar() {
     showGrid,
     toggleShowGrid,
     savePlan,
-    createNewPlan
+    createNewPlan,
+    currentPlan
   } = useFloorPlan();
 
   const handleNewProject = () => {
@@ -40,6 +42,23 @@ export function Toolbar() {
     if (name) {
       createNewPlan(name);
     }
+  };
+
+  const handleExport = () => {
+    if (!currentPlan) {
+      alert('No floor plan to export');
+      return;
+    }
+
+    // Create a JSON export
+    const dataStr = JSON.stringify(currentPlan, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${currentPlan.name}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -103,6 +122,17 @@ export function Toolbar() {
         >
           <Save className="w-4 h-4" />
           Save
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExport}
+          className="flex items-center gap-2"
+          disabled={!currentPlan}
+        >
+          <Download className="w-4 h-4" />
+          Export
         </Button>
       </div>
     </div>
