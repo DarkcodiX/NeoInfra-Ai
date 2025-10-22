@@ -19,7 +19,7 @@ function useScrollAnimation() {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
     );
 
     const element = ref.current;
@@ -50,21 +50,41 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       <style>{`
         .scroll-section {
           opacity: 0;
-          transform: translateY(30px);
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+          transform: translateY(50px);
+          transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
         .scroll-section.animate-in {
           opacity: 1;
           transform: translateY(0);
         }
-        .scroll-section-fast {
-          opacity: 0;
-          transform: translateY(20px);
-          transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        .scroll-section-fast.animate-in {
-          opacity: 1;
-          transform: translateY(0);
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.8s ease-out;
+        }
+        .animate-slide-up {
+          animation: slideUp 0.8s ease-out 0.2s both;
+        }
+        .animate-slide-up-delay {
+          animation: slideUp 0.8s ease-out 0.4s both;
+        }
+        .animate-slide-up-delay-2 {
+          animation: slideUp 0.8s ease-out 0.6s both;
+        }
+        .animate-slide-up-delay-3 {
+          animation: slideUp 0.8s ease-out 0.8s both;
         }
       `}</style>
 
@@ -72,18 +92,19 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-600 to-orange-600 rounded-lg">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 <Home className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-semibold text-white drop-shadow-lg">FLOOR PLANNER</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-white drop-shadow-lg hover:text-amber-200 transition-colors">Features</a>
-              <a href="#benefits" className="text-white drop-shadow-lg hover:text-amber-200 transition-colors">Benefits</a>
-              <a href="#how-it-works" className="text-white drop-shadow-lg hover:text-amber-200 transition-colors">How It Works</a>
+              <a href="#features" className="text-white drop-shadow-lg hover:opacity-80 transition-opacity">Features</a>
+              <a href="#benefits" className="text-white drop-shadow-lg hover:opacity-80 transition-opacity">Benefits</a>
+              <a href="#how-it-works" className="text-white drop-shadow-lg hover:opacity-80 transition-opacity">How It Works</a>
               <Button 
                 onClick={onGetStarted}
-                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-6 shadow-lg"
+                className="text-white px-6 shadow-lg border-0"
+                style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}
               >
                 Get Started
               </Button>
@@ -118,7 +139,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <Button 
                 size="lg" 
                 onClick={onGetStarted}
-                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-10 py-7 text-lg h-auto shadow-2xl hover:shadow-3xl transition-all"
+                className="text-white px-10 py-7 text-lg h-auto shadow-2xl hover:shadow-3xl transition-all border-0"
+                style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}
               >
                 Start My Transformation
                 <ChevronRight className="ml-2 w-5 h-5" />
@@ -155,38 +177,6 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideUp {
-          from { 
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.8s ease-out;
-        }
-        .animate-slide-up {
-          animation: slideUp 0.8s ease-out 0.2s both;
-        }
-        .animate-slide-up-delay {
-          animation: slideUp 0.8s ease-out 0.4s both;
-        }
-        .animate-slide-up-delay-2 {
-          animation: slideUp 0.8s ease-out 0.6s both;
-        }
-        .animate-slide-up-delay-3 {
-          animation: slideUp 0.8s ease-out 0.8s both;
-        }
-      `}</style>
-
       <section id="features" ref={featuresRef} className="py-24 bg-white scroll-mt-20 scroll-section">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -199,10 +189,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <Card className="border border-stone-200 hover:border-amber-300 hover:shadow-lg transition-all duration-300 group">
+            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Grid3X3 className="w-7 h-7 text-amber-700" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
+                  <Grid3X3 className="w-7 h-7" style={{ color: '#B8A873' }} />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">2D Floor Plans</h3>
                 <p className="text-gray-600 leading-relaxed">
@@ -211,10 +201,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:border-amber-300 hover:shadow-lg transition-all duration-300 group">
+            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Box className="w-7 h-7 text-orange-700" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
+                  <Box className="w-7 h-7" style={{ color: '#B8A873' }} />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">3D Visualization</h3>
                 <p className="text-gray-600 leading-relaxed">
@@ -223,10 +213,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:border-amber-300 hover:shadow-lg transition-all duration-300 group">
+            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Armchair className="w-7 h-7 text-amber-700" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
+                  <Armchair className="w-7 h-7" style={{ color: '#B8A873' }} />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">Furniture Library</h3>
                 <p className="text-gray-600 leading-relaxed">
@@ -235,10 +225,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:border-amber-300 hover:shadow-lg transition-all duration-300 group">
+            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Ruler className="w-7 h-7 text-orange-700" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
+                  <Ruler className="w-7 h-7" style={{ color: '#B8A873' }} />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">Precise Measurements</h3>
                 <p className="text-gray-600 leading-relaxed">
@@ -247,10 +237,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:border-amber-300 hover:shadow-lg transition-all duration-300 group">
+            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Palette className="w-7 h-7 text-amber-700" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
+                  <Palette className="w-7 h-7" style={{ color: '#B8A873' }} />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">Custom Styling</h3>
                 <p className="text-gray-600 leading-relaxed">
@@ -259,10 +249,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:border-amber-300 hover:shadow-lg transition-all duration-300 group">
+            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Download className="w-7 h-7 text-orange-700" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
+                  <Download className="w-7 h-7" style={{ color: '#B8A873' }} />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">Export & Share</h3>
                 <p className="text-gray-600 leading-relaxed">
@@ -274,7 +264,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <section id="benefits" ref={benefitsRef} className="py-24 bg-gradient-to-br from-stone-50 to-amber-50/30 scroll-mt-20 scroll-section">
+      <section id="benefits" ref={benefitsRef} className="py-24 scroll-mt-20 scroll-section" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.1) 0%, rgba(184, 168, 115, 0.05) 100%)' }}>
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -288,7 +278,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg">
-                <Clock className="w-8 h-8 text-amber-600" />
+                <Clock className="w-8 h-8" style={{ color: '#D1C398' }} />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Save Time</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -298,7 +288,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg">
-                <Users className="w-8 h-8 text-orange-600" />
+                <Users className="w-8 h-8" style={{ color: '#B8A873' }} />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Easy Collaboration</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -308,7 +298,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg">
-                <Sparkles className="w-8 h-8 text-amber-600" />
+                <Sparkles className="w-8 h-8" style={{ color: '#D1C398' }} />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Professional Results</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -318,7 +308,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg">
-                <Shield className="w-8 h-8 text-orange-600" />
+                <Shield className="w-8 h-8" style={{ color: '#B8A873' }} />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Secure & Private</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -342,7 +332,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           
           <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl text-white text-3xl font-bold shadow-xl">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl text-white text-3xl font-bold shadow-xl" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 1
               </div>
               <h3 className="text-2xl font-semibold text-gray-900">Draw Your Layout</h3>
@@ -352,7 +342,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
             
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl text-white text-3xl font-bold shadow-xl">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl text-white text-3xl font-bold shadow-xl" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 2
               </div>
               <h3 className="text-2xl font-semibold text-gray-900">Add Furniture</h3>
@@ -362,7 +352,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
             
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl text-white text-3xl font-bold shadow-xl">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl text-white text-3xl font-bold shadow-xl" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 3
               </div>
               <h3 className="text-2xl font-semibold text-gray-900">Visualize in 3D</h3>
@@ -374,29 +364,29 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <section ref={statsRef} className="py-24 bg-gradient-to-br from-amber-600 to-orange-600 text-white scroll-section">
+      <section ref={statsRef} className="py-24 text-white scroll-section" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-12 max-w-4xl mx-auto text-center">
             <div className="space-y-3">
               <div className="text-6xl md:text-7xl font-bold">50+</div>
-              <div className="text-amber-100 text-lg">Furniture Items</div>
-              <p className="text-white/80 text-sm">Curated collection of premium furniture and fixtures</p>
+              <div className="text-white/90 text-lg">Furniture Items</div>
+              <p className="text-white/70 text-sm">Curated collection of premium furniture and fixtures</p>
             </div>
             <div className="space-y-3">
               <div className="text-6xl md:text-7xl font-bold">Unlimited</div>
-              <div className="text-amber-100 text-lg">Design Possibilities</div>
-              <p className="text-white/80 text-sm">Create as many unique floor plans as you want</p>
+              <div className="text-white/90 text-lg">Design Possibilities</div>
+              <p className="text-white/70 text-sm">Create as many unique floor plans as you want</p>
             </div>
             <div className="space-y-3">
               <div className="text-6xl md:text-7xl font-bold">100%</div>
-              <div className="text-amber-100 text-lg">Free to Start</div>
-              <p className="text-white/80 text-sm">No hidden fees, no credit card, no obligations</p>
+              <div className="text-white/90 text-lg">Free to Start</div>
+              <p className="text-white/70 text-sm">No hidden fees, no credit card, no obligations</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section ref={whoItsForRef} className="py-24 bg-gradient-to-br from-stone-50 via-amber-50/20 to-orange-50/20 scroll-section">
+      <section ref={whoItsForRef} className="py-24 scroll-section" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.08) 0%, rgba(184, 168, 115, 0.05) 100%)' }}>
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -407,8 +397,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   </h2>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-1">
-                        <ChevronRight className="w-4 h-4 text-amber-700" />
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'rgba(209, 195, 152, 0.2)' }}>
+                        <ChevronRight className="w-4 h-4" style={{ color: '#B8A873' }} />
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900">Homeowners</h4>
@@ -416,8 +406,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-1">
-                        <ChevronRight className="w-4 h-4 text-amber-700" />
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'rgba(209, 195, 152, 0.2)' }}>
+                        <ChevronRight className="w-4 h-4" style={{ color: '#B8A873' }} />
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900">Interior Designers</h4>
@@ -425,8 +415,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-1">
-                        <ChevronRight className="w-4 h-4 text-amber-700" />
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'rgba(209, 195, 152, 0.2)' }}>
+                        <ChevronRight className="w-4 h-4" style={{ color: '#B8A873' }} />
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900">Real Estate Agents</h4>
@@ -434,8 +424,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-1">
-                        <ChevronRight className="w-4 h-4 text-amber-700" />
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'rgba(209, 195, 152, 0.2)' }}>
+                        <ChevronRight className="w-4 h-4" style={{ color: '#B8A873' }} />
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900">Contractors</h4>
@@ -444,16 +434,17 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                     </div>
                   </div>
                 </div>
-                <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-12 flex items-center justify-center">
+                <div className="p-12 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.15) 100%)' }}>
                   <div className="text-center space-y-6">
-                    <div className="w-24 h-24 bg-gradient-to-br from-amber-600 to-orange-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl">
+                    <div className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto shadow-xl" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                       <Home className="w-14 h-14 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900">Start Designing Today</h3>
                     <Button 
                       size="lg" 
                       onClick={onGetStarted}
-                      className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-base h-auto shadow-lg"
+                      className="text-white px-8 py-6 text-base h-auto shadow-lg border-0"
+                      style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}
                     >
                       Create Your First Design
                     </Button>
@@ -478,7 +469,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <Button 
               size="lg" 
               onClick={onGetStarted}
-              className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-10 py-7 text-lg h-auto shadow-lg hover:shadow-xl transition-all"
+              className="text-white px-10 py-7 text-lg h-auto shadow-lg hover:shadow-xl transition-all border-0"
+              style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}
             >
               Begin Your Transformation
               <ChevronRight className="ml-2 w-5 h-5" />
@@ -495,7 +487,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-600 to-orange-600 rounded-lg">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                   <Home className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-lg font-semibold text-white">FLOOR PLANNER</span>
@@ -507,28 +499,28 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <div>
               <h4 className="text-white font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#features" className="hover:text-amber-400 transition-colors">Features</a></li>
-                <li><a href="#benefits" className="hover:text-amber-400 transition-colors">Benefits</a></li>
-                <li><a href="#how-it-works" className="hover:text-amber-400 transition-colors">How It Works</a></li>
-                <li><a href="#pricing" className="hover:text-amber-400 transition-colors">Pricing</a></li>
+                <li><a href="#features" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Features</a></li>
+                <li><a href="#benefits" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Benefits</a></li>
+                <li><a href="#how-it-works" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>How It Works</a></li>
+                <li><a href="#pricing" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Pricing</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-amber-400 transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>About Us</a></li>
+                <li><a href="#" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Contact</a></li>
+                <li><a href="#" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Privacy Policy</a></li>
+                <li><a href="#" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Terms of Service</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-amber-400 transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors">Video Tutorials</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors">Design Blog</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors">Community</a></li>
+                <li><a href="#" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Help Center</a></li>
+                <li><a href="#" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Video Tutorials</a></li>
+                <li><a href="#" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Design Blog</a></li>
+                <li><a href="#" className="hover:opacity-80 transition-opacity" style={{ color: '#D1C398' }}>Community</a></li>
               </ul>
             </div>
           </div>

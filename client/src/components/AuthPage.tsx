@@ -22,12 +22,12 @@ export function AuthPage({ onAuth, onBack }: AuthPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-stone-50 to-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.1) 0%, rgba(184, 168, 115, 0.05) 100%)' }}>
       <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
         <div className="hidden md:block">
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl shadow-lg">
+              <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 <Home className="w-10 h-10 text-white" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900">Floor Planner</h2>
@@ -41,11 +41,11 @@ export function AuthPage({ onAuth, onBack }: AuthPageProps) {
             </p>
             <div className="grid grid-cols-2 gap-4 pt-4">
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-amber-700">50+</div>
+                <div className="text-3xl font-bold" style={{ color: '#B8A873' }}>50+</div>
                 <div className="text-sm text-gray-600">Furniture Items</div>
               </div>
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-amber-700">100%</div>
+                <div className="text-3xl font-bold" style={{ color: '#B8A873' }}>100%</div>
                 <div className="text-sm text-gray-600">Free to Start</div>
               </div>
             </div>
@@ -105,7 +105,8 @@ export function AuthPage({ onAuth, onBack }: AuthPageProps) {
               </div>
               <Button
                 type="submit"
-                className="w-full h-11 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-medium"
+                className="w-full h-11 text-white font-medium border-0"
+                style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}
               >
                 {isSignUp ? 'Sign Up' : 'Sign In'}
               </Button>
