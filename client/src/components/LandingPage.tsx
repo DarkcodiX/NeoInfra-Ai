@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Home, Maximize, Armchair, Grid3X3, Box, Ruler, ChevronRight, Palette, Download, Users, Sparkles, Clock, Shield } from 'lucide-react';
@@ -7,10 +7,68 @@ interface LandingPageProps {
   onGetStarted: () => void;
 }
 
+function useScrollAnimation() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const element = ref.current;
+    if (element) {
+      observer.observe(element);
+    }
+
+    return () => {
+      if (element) {
+        observer.unobserve(element);
+      }
+    };
+  }, []);
+
+  return ref;
+}
+
 export function LandingPage({ onGetStarted }: LandingPageProps) {
+  const featuresRef = useScrollAnimation();
+  const benefitsRef = useScrollAnimation();
+  const howItWorksRef = useScrollAnimation();
+  const statsRef = useScrollAnimation();
+  const whoItsForRef = useScrollAnimation();
+  const ctaRef = useScrollAnimation();
+
   return (
     <div className="min-h-screen bg-white">
-      <nav className="fixed top-0 w-full bg-transparent backdrop-blur-md z-50">
+      <style>{`
+        .scroll-section {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .scroll-section.animate-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .scroll-section-fast {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+        .scroll-section-fast.animate-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
+
+      <nav className="fixed top-0 w-full bg-transparent backdrop-blur-md z-50 transition-all duration-300">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -46,17 +104,17 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/40"></div>
         
         <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight drop-shadow-2xl">
+          <div className="max-w-4xl mx-auto text-center space-y-8 animate-fade-in">
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight drop-shadow-2xl animate-slide-up">
               Get a Designer<br />Space You'll Love
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+            <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg animate-slide-up-delay">
               Transform your vision into reality with professional floor planning tools. 
               Design, visualize, and create stunning spaces in minutes.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-slide-up-delay-2">
               <Button 
                 size="lg" 
                 onClick={onGetStarted}
@@ -67,7 +125,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </Button>
             </div>
             
-            <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-white/90">
+            <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-white/90 animate-slide-up-delay-3">
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -97,7 +155,39 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <section id="features" className="py-24 bg-white scroll-mt-20">
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.8s ease-out;
+        }
+        .animate-slide-up {
+          animation: slideUp 0.8s ease-out 0.2s both;
+        }
+        .animate-slide-up-delay {
+          animation: slideUp 0.8s ease-out 0.4s both;
+        }
+        .animate-slide-up-delay-2 {
+          animation: slideUp 0.8s ease-out 0.6s both;
+        }
+        .animate-slide-up-delay-3 {
+          animation: slideUp 0.8s ease-out 0.8s both;
+        }
+      `}</style>
+
+      <section id="features" ref={featuresRef} className="py-24 bg-white scroll-mt-20 scroll-section">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -184,7 +274,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <section id="benefits" className="py-24 bg-gradient-to-br from-stone-50 to-amber-50/30 scroll-mt-20">
+      <section id="benefits" ref={benefitsRef} className="py-24 bg-gradient-to-br from-stone-50 to-amber-50/30 scroll-mt-20 scroll-section">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -239,7 +329,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <section id="how-it-works" className="py-24 bg-white scroll-mt-20">
+      <section id="how-it-works" ref={howItWorksRef} className="py-24 bg-white scroll-mt-20 scroll-section">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -284,7 +374,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <section className="py-24 bg-gradient-to-br from-amber-600 to-orange-600 text-white">
+      <section ref={statsRef} className="py-24 bg-gradient-to-br from-amber-600 to-orange-600 text-white scroll-section">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-12 max-w-4xl mx-auto text-center">
             <div className="space-y-3">
@@ -306,7 +396,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <section className="py-24 bg-gradient-to-br from-stone-50 via-amber-50/20 to-orange-50/20">
+      <section ref={whoItsForRef} className="py-24 bg-gradient-to-br from-stone-50 via-amber-50/20 to-orange-50/20 scroll-section">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -375,7 +465,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      <section id="pricing" className="py-24 bg-white scroll-mt-20">
+      <section id="pricing" ref={ctaRef} className="py-24 bg-white scroll-mt-20 scroll-section">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
