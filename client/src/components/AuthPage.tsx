@@ -23,23 +23,54 @@ export function AuthPage({ onAuth, onBack }: AuthPageProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.1) 0%, rgba(184, 168, 115, 0.05) 100%)' }}>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.8s ease-out;
+        }
+        .animate-slide-up {
+          animation: slideUp 0.8s ease-out 0.2s both;
+        }
+        .animate-slide-up-delay {
+          animation: slideUp 0.8s ease-out 0.4s both;
+        }
+        .animate-slide-up-delay-2 {
+          animation: slideUp 0.8s ease-out 0.6s both;
+        }
+        .animate-slide-up-delay-3 {
+          animation: slideUp 0.8s ease-out 0.8s both;
+        }
+      `}</style>
       <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
         <div className="hidden md:block">
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex items-center gap-3 animate-slide-up">
               <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 <Home className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">Floor Planner</h2>
+              <h2 className="text-3xl font-bold text-gray-900">NeoInfra AI</h2>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight animate-slide-up-delay">
               Design Your Dream Home
             </h1>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-lg text-gray-600 leading-relaxed animate-slide-up-delay-2">
               Create stunning floor plans with professional tools. Visualize your space in 3D, 
               add furniture, and bring your vision to life.
             </p>
-            <div className="grid grid-cols-2 gap-4 pt-4">
+            <div className="grid grid-cols-2 gap-4 pt-4 animate-slide-up-delay-3">
               <div className="space-y-2">
                 <div className="text-3xl font-bold" style={{ color: '#B8A873' }}>50+</div>
                 <div className="text-sm text-gray-600">Furniture Items</div>
@@ -52,7 +83,7 @@ export function AuthPage({ onAuth, onBack }: AuthPageProps) {
           </div>
         </div>
 
-        <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur">
+        <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur animate-slide-up-delay">
           <CardHeader className="space-y-1 pb-6">
             <CardTitle className="text-2xl font-bold text-center">
               {isSignUp ? 'Create Account' : 'Welcome Back'}

@@ -1,46 +1,41 @@
-import React, { useState } from 'react';
-import { FloorPlanner } from './components/FloorPlanner';
-import { LandingPage } from './components/LandingPage';
-import { AuthPage } from './components/AuthPage';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { LandingPage, AuthPage, HomePage, EditorPage, ProjectsPage, ProfilePage, NotFoundPage } from './pages';
 import { useFloorPlan } from './lib/stores/useFloorPlan';
 import "@fontsource/inter";
 import './index.css';
 
-type AppView = 'landing' | 'auth' | 'editor';
+// Protected Route component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { currentPlan } = useFloorPlan();
+
+  if (!currentPlan) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 function App() {
-  const { createNewPlan, currentPlan } = useFloorPlan();
-  const [currentView, setCurrentView] = useState<AppView>(
-    currentPlan ? 'editor' : 'landing'
-  );
-
-  const handleGetStarted = () => {
-    setCurrentView('auth');
-  };
-
-  const handleAuth = () => {
-    if (!currentPlan) {
-      createNewPlan('My First Floor Plan');
-    }
-    setCurrentView('editor');
-  };
-
-  const handleBackToLanding = () => {
-    setCurrentView('landing');
-  };
-
-  if (currentView === 'landing') {
-    return <LandingPage onGetStarted={handleGetStarted} />;
-  }
-
-  if (currentView === 'auth') {
-    return <AuthPage onAuth={handleAuth} onBack={handleBackToLanding} />;
-  }
-
   return (
-    <div className="w-full h-screen font-sans fixed inset-0 overflow-hidden">
-      <FloorPlanner />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          path="/editor"
+          element={
+            <ProtectedRoute>
+              <EditorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Router>
   );
 }
 

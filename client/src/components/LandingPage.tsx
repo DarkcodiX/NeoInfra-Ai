@@ -15,7 +15,16 @@ function useScrollAnimation() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
+            // Apply the exact same animation classes from hero section
+            const children = entry.target.querySelectorAll('.stagger-item');
+            children.forEach((child, index) => {
+              // Remove initial hidden state
+              child.classList.remove('stagger-item');
+              
+              // Apply hero-style animation classes with longer delays
+              const delay = 0.3 + (index * 0.25);
+              child.style.animation = `slideUp 0.8s ease-out ${delay}s both`;
+            });
           }
         });
       },
@@ -49,13 +58,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     <div className="min-h-screen bg-white">
       <style>{`
         .scroll-section {
-          opacity: 0;
-          transform: translateY(50px);
-          transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-        .scroll-section.animate-in {
           opacity: 1;
-          transform: translateY(0);
+        }
+        .stagger-item {
+          opacity: 0;
         }
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -95,7 +101,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 <Home className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-semibold text-white drop-shadow-lg">FLOOR PLANNER</span>
+              <span className="text-xl font-semibold text-white drop-shadow-lg">NeoInfra AI</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-white drop-shadow-lg hover:opacity-80 transition-opacity">Features</a>
@@ -189,7 +195,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
+            <Card className="stagger-item border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
                   <Grid3X3 className="w-7 h-7" style={{ color: '#B8A873' }} />
@@ -201,7 +207,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
+            <Card className="stagger-item border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
                   <Box className="w-7 h-7" style={{ color: '#B8A873' }} />
@@ -213,7 +219,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
+            <Card className="stagger-item border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
                   <Armchair className="w-7 h-7" style={{ color: '#B8A873' }} />
@@ -225,7 +231,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
+            <Card className="stagger-item border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
                   <Ruler className="w-7 h-7" style={{ color: '#B8A873' }} />
@@ -237,7 +243,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
+            <Card className="stagger-item border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
                   <Palette className="w-7 h-7" style={{ color: '#B8A873' }} />
@@ -249,7 +255,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </CardContent>
             </Card>
             
-            <Card className="border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
+            <Card className="stagger-item border border-stone-200 hover:shadow-lg transition-all duration-300 group" style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}>
               <CardContent className="p-8">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
                   <Download className="w-7 h-7" style={{ color: '#B8A873' }} />
@@ -276,7 +282,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            <div className="text-center space-y-4">
+            <div className="stagger-item text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg">
                 <Clock className="w-8 h-8" style={{ color: '#D1C398' }} />
               </div>
@@ -286,7 +292,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </p>
             </div>
 
-            <div className="text-center space-y-4">
+            <div className="stagger-item text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg">
                 <Users className="w-8 h-8" style={{ color: '#B8A873' }} />
               </div>
@@ -296,7 +302,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </p>
             </div>
 
-            <div className="text-center space-y-4">
+            <div className="stagger-item text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg">
                 <Sparkles className="w-8 h-8" style={{ color: '#D1C398' }} />
               </div>
@@ -306,7 +312,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </p>
             </div>
 
-            <div className="text-center space-y-4">
+            <div className="stagger-item text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg">
                 <Shield className="w-8 h-8" style={{ color: '#B8A873' }} />
               </div>
@@ -331,7 +337,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
           
           <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
-            <div className="text-center space-y-4">
+            <div className="stagger-item text-center space-y-4">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl text-white text-3xl font-bold shadow-xl" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 1
               </div>
@@ -341,7 +347,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </p>
             </div>
             
-            <div className="text-center space-y-4">
+            <div className="stagger-item text-center space-y-4">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl text-white text-3xl font-bold shadow-xl" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 2
               </div>
@@ -351,7 +357,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </p>
             </div>
             
-            <div className="text-center space-y-4">
+            <div className="stagger-item text-center space-y-4">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl text-white text-3xl font-bold shadow-xl" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                 3
               </div>
@@ -367,17 +373,17 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       <section ref={statsRef} className="py-24 text-white scroll-section" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-12 max-w-4xl mx-auto text-center">
-            <div className="space-y-3">
+            <div className="stagger-item space-y-3">
               <div className="text-6xl md:text-7xl font-bold">50+</div>
               <div className="text-white/90 text-lg">Furniture Items</div>
               <p className="text-white/70 text-sm">Curated collection of premium furniture and fixtures</p>
             </div>
-            <div className="space-y-3">
+            <div className="stagger-item space-y-3">
               <div className="text-6xl md:text-7xl font-bold">Unlimited</div>
               <div className="text-white/90 text-lg">Design Possibilities</div>
               <p className="text-white/70 text-sm">Create as many unique floor plans as you want</p>
             </div>
-            <div className="space-y-3">
+            <div className="stagger-item space-y-3">
               <div className="text-6xl md:text-7xl font-bold">100%</div>
               <div className="text-white/90 text-lg">Free to Start</div>
               <p className="text-white/70 text-sm">No hidden fees, no credit card, no obligations</p>
@@ -490,7 +496,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 <div className="flex items-center justify-center w-10 h-10 rounded-lg" style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}>
                   <Home className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-lg font-semibold text-white">FLOOR PLANNER</span>
+                <span className="text-lg font-semibold text-white">NeoInfra AI</span>
               </div>
               <p className="text-sm leading-relaxed">
                 Professional design tools for creating beautiful spaces. Transform your vision into reality.
@@ -525,7 +531,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
           </div>
           <div className="border-t border-stone-800 pt-8 text-center text-sm">
-            <p>© 2024 Floor Planner. Design your dream home with professional-grade tools.</p>
+            <p>© 2024 NeoInfra AI. Design your dream home with professional-grade tools.</p>
           </div>
         </div>
       </footer>
