@@ -79,7 +79,10 @@ JSON FORMAT:
       "color": "#F5F5DC",
       "floorTexture": "wood",
       "wallColor": "#FFFFFF",
-      "dimensions": {"width": 7, "height": 6}
+      "dimensions": {"width": 7, "height": 6},
+      "doors": [
+        {"position": {"x": 7, "y": 3}, "width": 0.9, "connectedTo": "Kitchen"}
+      ]
     }
   ],
   "walls": [],
@@ -95,22 +98,33 @@ JSON FORMAT:
   ]
 }
 
-ROOM POSITIONING EXAMPLES:
+DOOR PLACEMENT RULES:
+- Place doors on shared walls between rooms
+- Door width: 0.9m (standard)
+- Position doors centered on shared walls
+- Living room connects to: Kitchen, Dining, Hallway
+- Bedrooms connect to: Hallway, Master Bath (ensuite)
+- Kitchen connects to: Living, Dining
+- Bathrooms connect to: Hallway or Bedroom (ensuite)
 
-For 2 rooms (side by side):
+ROOM POSITIONING - CONNECTED LAYOUT (NO GAPS):
+
+For 2 rooms (side by side, SHARED WALL):
 Room 1: x: 0-7, y: 0-6
-Room 2: x: 8-12, y: 0-4  (1m gap at x=7 to x=8)
+Room 2: x: 7-11, y: 0-4  (shares wall at x=7)
 
-For 3 rooms (L-shape):
-Room 1: x: 0-7, y: 0-6
-Room 2: x: 8-12, y: 0-4  (1m gap)
-Room 3: x: 0-5, y: 7-11  (1m gap)
+For 3 rooms (L-shape, CONNECTED):
+Room 1 (Living): x: 0-7, y: 0-6
+Room 2 (Kitchen): x: 7-11, y: 0-4  (shares wall with Room 1)
+Room 3 (Bedroom): x: 0-5, y: 6-10  (shares wall with Room 1)
 
-For 4 rooms (2x2 grid):
-Room 1: x: 0-6, y: 0-5
-Room 2: x: 7-11, y: 0-4  (1m gap)
-Room 3: x: 0-5, y: 6-10  (1m gap)
-Room 4: x: 6-9, y: 6-9   (1m gap)
+For 4 rooms (connected layout):
+Room 1 (Living): x: 0-7, y: 0-6
+Room 2 (Kitchen): x: 7-11, y: 0-4  (shares wall)
+Room 3 (Bedroom): x: 0-5, y: 6-10  (shares wall)
+Room 4 (Bathroom): x: 5-8, y: 6-9  (shares wall)
+
+CRITICAL: Rooms should SHARE walls (no gaps), not have space between them!
 
 ROOM SIZES (width x height in meters):
 - Living Room: 7x6m
@@ -253,10 +267,17 @@ ACCENT WALL IDEAS:
 User Request: ${prompt}
 
 IMPORTANT: 
-1. Calculate exact x,y coordinates for each room so they DON'T overlap
-2. Choose ONE cohesive color palette from the options above
-3. Vary wall colors between rooms for visual interest
-4. Match furniture colors to your chosen palette`;
+1. Rooms should SHARE walls (connected), NOT have gaps between them
+2. Calculate exact x,y coordinates so rooms touch but DON'T overlap
+3. Add doors on shared walls between connected rooms
+4. Choose ONE cohesive color palette from the options above
+5. Vary wall colors between rooms for visual interest
+6. Match furniture colors to your chosen palette
+
+EXAMPLE CONNECTED LAYOUT:
+Living Room (0,0 to 7,6) connects to Kitchen (7,0 to 11,4) - door at (7, 2)
+Living Room (0,0 to 7,6) connects to Bedroom (0,6 to 5,10) - door at (2.5, 6)
+Kitchen (7,0 to 11,4) connects to Dining (7,4 to 11,8) - door at (9, 4)`;
 
   const result = await model.generateContent(systemPrompt);
   const response = result.response;
@@ -331,46 +352,60 @@ function generateApartmentLayout() {
         color: "#E8DCC4",
         floorTexture: "wood",
         wallColor: "#2C3E50",
-        dimensions: { width: 6.5, height: 5.5 }
+        dimensions: { width: 6.5, height: 5.5 },
+        doors: [
+          { position: { x: 6.5, y: 1.5 }, width: 0.9, connectedTo: "Kitchen" },
+          { position: { x: 2.5, y: 5.5 }, width: 0.9, connectedTo: "Bedroom" }
+        ]
       },
       {
         name: "Kitchen",
         points: [
-          { x: 7.5, y: 0 },
-          { x: 11.5, y: 0 },
-          { x: 11.5, y: 3.5 },
-          { x: 7.5, y: 3.5 }
+          { x: 6.5, y: 0 },
+          { x: 10.5, y: 0 },
+          { x: 10.5, y: 3.5 },
+          { x: 6.5, y: 3.5 }
         ],
         color: "#FFFFFF",
         floorTexture: "tile",
         wallColor: "#ECEFF1",
-        dimensions: { width: 4, height: 3.5 }
+        dimensions: { width: 4, height: 3.5 },
+        doors: [
+          { position: { x: 6.5, y: 1.5 }, width: 0.9, connectedTo: "Living Room" }
+        ]
       },
       {
         name: "Bedroom",
         points: [
-          { x: 0, y: 6.5 },
-          { x: 5, y: 6.5 },
-          { x: 5, y: 10.7 },
-          { x: 0, y: 10.7 }
+          { x: 0, y: 5.5 },
+          { x: 5, y: 5.5 },
+          { x: 5, y: 9.7 },
+          { x: 0, y: 9.7 }
         ],
         color: "#F0E6D2",
         floorTexture: "carpet",
         wallColor: "#4A5568",
-        dimensions: { width: 5, height: 4.2 }
+        dimensions: { width: 5, height: 4.2 },
+        doors: [
+          { position: { x: 2.5, y: 5.5 }, width: 0.9, connectedTo: "Living Room" },
+          { position: { x: 5, y: 7 }, width: 0.9, connectedTo: "Bathroom" }
+        ]
       },
       {
         name: "Bathroom",
         points: [
-          { x: 6, y: 6.5 },
-          { x: 8.5, y: 6.5 },
-          { x: 8.5, y: 8.7 },
-          { x: 6, y: 8.7 }
+          { x: 5, y: 5.5 },
+          { x: 7.5, y: 5.5 },
+          { x: 7.5, y: 7.7 },
+          { x: 5, y: 7.7 }
         ],
         color: "#F8F9FA",
         floorTexture: "tile",
         wallColor: "#B3E5FC",
-        dimensions: { width: 2.5, height: 2.2 }
+        dimensions: { width: 2.5, height: 2.2 },
+        doors: [
+          { position: { x: 5, y: 7 }, width: 0.9, connectedTo: "Bedroom" }
+        ]
       }
     ],
     furniture: [
@@ -418,72 +453,92 @@ function generateHouseLayout() {
         color: "#D2B48C",
         floorTexture: "wood",
         wallColor: "#8D6E63",
-        dimensions: { width: 7.5, height: 6.5 }
+        dimensions: { width: 7.5, height: 6.5 },
+        doors: [
+          { position: { x: 7.5, y: 2 }, width: 0.9, connectedTo: "Dining Room" },
+          { position: { x: 3, y: 6.5 }, width: 0.9, connectedTo: "Master Bedroom" }
+        ]
       },
       {
         name: "Dining Room",
         points: [
-          { x: 8.5, y: 0 },
-          { x: 13.2, y: 0 },
-          { x: 13.2, y: 4.5 },
-          { x: 8.5, y: 4.5 }
+          { x: 7.5, y: 0 },
+          { x: 12.2, y: 0 },
+          { x: 12.2, y: 4.5 },
+          { x: 7.5, y: 4.5 }
         ],
         color: "#D2B48C",
         floorTexture: "wood",
         wallColor: "#A1887F",
-        dimensions: { width: 4.7, height: 4.5 }
+        dimensions: { width: 4.7, height: 4.5 },
+        doors: [
+          { position: { x: 7.5, y: 2 }, width: 0.9, connectedTo: "Living Room" },
+          { position: { x: 10, y: 4.5 }, width: 0.9, connectedTo: "Kitchen" }
+        ]
       },
       {
         name: "Kitchen",
         points: [
-          { x: 8.5, y: 5.5 },
-          { x: 13.2, y: 5.5 },
-          { x: 13.2, y: 9.2 },
-          { x: 8.5, y: 9.2 }
+          { x: 7.5, y: 4.5 },
+          { x: 12.2, y: 4.5 },
+          { x: 12.2, y: 8.2 },
+          { x: 7.5, y: 8.2 }
         ],
         color: "#FAF0E6",
         floorTexture: "tile",
         wallColor: "#D7CCC8",
-        dimensions: { width: 4.7, height: 3.7 }
+        dimensions: { width: 4.7, height: 3.7 },
+        doors: [
+          { position: { x: 10, y: 4.5 }, width: 0.9, connectedTo: "Dining Room" }
+        ]
       },
       {
         name: "Master Bedroom",
         points: [
-          { x: 0, y: 7.5 },
-          { x: 6, y: 7.5 },
-          { x: 6, y: 12.2 },
-          { x: 0, y: 12.2 }
+          { x: 0, y: 6.5 },
+          { x: 6, y: 6.5 },
+          { x: 6, y: 11.2 },
+          { x: 0, y: 11.2 }
         ],
         color: "#DEB887",
         floorTexture: "carpet",
         wallColor: "#A1887F",
-        dimensions: { width: 6, height: 4.7 }
+        dimensions: { width: 6, height: 4.7 },
+        doors: [
+          { position: { x: 3, y: 6.5 }, width: 0.9, connectedTo: "Living Room" }
+        ]
       },
       {
         name: "Bedroom",
         points: [
-          { x: 7, y: 10.2 },
-          { x: 11.2, y: 10.2 },
-          { x: 11.2, y: 14.2 },
-          { x: 7, y: 14.2 }
+          { x: 6.5, y: 9 },
+          { x: 10.7, y: 9 },
+          { x: 10.7, y: 13 },
+          { x: 6.5, y: 13 }
         ],
         color: "#F5DEB3",
         floorTexture: "carpet",
         wallColor: "#BCAAA4",
-        dimensions: { width: 4.2, height: 4 }
+        dimensions: { width: 4.2, height: 4 },
+        doors: [
+          { position: { x: 10.7, y: 11 }, width: 0.9, connectedTo: "Bathroom" }
+        ]
       },
       {
         name: "Bathroom",
         points: [
-          { x: 12.2, y: 10.2 },
-          { x: 14.7, y: 10.2 },
-          { x: 14.7, y: 12.7 },
-          { x: 12.2, y: 12.7 }
+          { x: 10.7, y: 9 },
+          { x: 13.2, y: 9 },
+          { x: 13.2, y: 11.5 },
+          { x: 10.7, y: 11.5 }
         ],
         color: "#FFF8DC",
         floorTexture: "tile",
         wallColor: "#EFEBE9",
-        dimensions: { width: 2.5, height: 2.5 }
+        dimensions: { width: 2.5, height: 2.5 },
+        doors: [
+          { position: { x: 10.7, y: 11 }, width: 0.9, connectedTo: "Bedroom" }
+        ]
       }
     ],
     furniture: [

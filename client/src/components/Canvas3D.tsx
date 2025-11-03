@@ -62,6 +62,34 @@ function Room3D({ room }: { room: any }) {
         );
       })}
       
+      {/* Doors - realistic door frames and panels */}
+      {room.doors && room.doors.map((door: any, doorIndex: number) => {
+        const doorWidth = door.width || 0.9;
+        const doorHeight = 2.1;
+        const doorX = door.position?.x || 0;
+        const doorY = door.position?.y || 0;
+        
+        return (
+          <group key={`door-${doorIndex}`}>
+            {/* Door frame */}
+            <mesh position={[doorX, doorHeight / 2, doorY]} castShadow receiveShadow>
+              <boxGeometry args={[doorWidth + 0.1, doorHeight, 0.15]} />
+              <meshStandardMaterial color="#8B7355" roughness={0.6} metalness={0.1} />
+            </mesh>
+            {/* Door panel */}
+            <mesh position={[doorX, doorHeight / 2, doorY]} castShadow receiveShadow>
+              <boxGeometry args={[doorWidth, doorHeight - 0.1, 0.05]} />
+              <meshStandardMaterial color="#D2B48C" roughness={0.4} metalness={0.05} />
+            </mesh>
+            {/* Door handle */}
+            <mesh position={[doorX + doorWidth * 0.35, 1, doorY + 0.08]} castShadow receiveShadow>
+              <cylinderGeometry args={[0.03, 0.03, 0.15, 8]} />
+              <meshStandardMaterial color="#C0C0C0" roughness={0.2} metalness={0.9} />
+            </mesh>
+          </group>
+        );
+      })}
+      
       {/* Room label - elegant positioning */}
       <Text
         position={[
