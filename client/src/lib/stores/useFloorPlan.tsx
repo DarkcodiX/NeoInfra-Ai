@@ -55,7 +55,7 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export const useFloorPlan = create<FloorPlanState>()(
   subscribeWithSelector((set, get) => ({
-    // Initial state
+    // Initial state - start empty, only show AI-generated plans
     currentPlan: null,
     viewMode: '2d',
     activeTool: 'select',
