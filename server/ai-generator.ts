@@ -61,15 +61,15 @@ export async function generateFloorPlan(prompt: string) {
 async function generateWithAI(prompt: string) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   
-  const systemPrompt = `You are a professional architect and interior designer. Generate a realistic, modern floor plan with PERFECT room positioning.
+  const systemPrompt = `You are an architect. Create a floor plan in JSON format.
 
-CRITICAL RULES:
-1. Return ONLY valid JSON (no markdown, no code blocks, no explanations)
-2. Calculate exact room positions so they NEVER overlap
-3. Leave 1.0 meter gap between all rooms
-4. Position rooms in a clean grid or L-shape layout
+RULES:
+1. Return ONLY JSON (no markdown, no text, no explanations)
+2. Rooms must touch (share walls), no gaps
+3. Add "floor" property to every room (0=ground, 1=first floor, etc.)
+4. Add furniture to every room
 
-JSON FORMAT:
+JSON FORMAT (Single Floor):
 {
   "name": "Floor Plan Name",
   "rooms": [
@@ -80,23 +80,73 @@ JSON FORMAT:
       "floorTexture": "wood",
       "wallColor": "#FFFFFF",
       "dimensions": {"width": 7, "height": 6},
-      "doors": [
-        {"position": {"x": 7, "y": 3}, "width": 0.9, "connectedTo": "Kitchen"}
-      ]
+      "floor": 0,
+      "doors": [{"position": {"x": 7, "y": 3}, "width": 0.9, "connectedTo": "Kitchen"}]
     }
   ],
-  "walls": [],
-  "furniture": [
-    {
-      "type": "sofa-1",
-      "name": "Modern Sofa",
-      "position": {"x": 3.5, "y": 2},
-      "rotation": 0,
-      "scale": {"x": 1, "y": 1},
-      "color": "#4A5568"
-    }
-  ]
+  "furniture": [{"type": "sofa-1", "name": "Modern Sofa", "position": {"x": 3.5, "y": 2}, "rotation": 0, "scale": {"x": 1, "y": 1}, "color": "#4A5568", "floor": 0}]
 }
+
+MULTI-FLOOR BUILDINGS (apartments, offices, hotels):
+For multi-story buildings, add "floor" property to each room (0=ground, 1=first, 2=second, etc.)
+
+Example 4-Floor Building with 10 Units Per Floor:
+{
+  "name": "4-Story Apartment Complex",
+  "rooms": [
+    // GROUND FLOOR - Lobby + 10 apartments
+    {"name": "Lobby", "floor": 0, "points": [{"x":0,"y":0},{"x":4,"y":0},{"x":4,"y":8},{"x":0,"y":8}], "doors": [...]},
+    {"name": "Apt 101", "floor": 0, "points": [{"x":4,"y":0},{"x":10,"y":0},{"x":10,"y":4},{"x":4,"y":4}], "doors": [...]},
+    {"name": "Apt 102", "floor": 0, "points": [{"x":10,"y":0},{"x":16,"y":0},{"x":16,"y":4},{"x":10,"y":4}], "doors": [...]},
+    // ... apartments 103-110
+    
+    // FLOOR 1 - 10 apartments (same x,y layout, floor: 1)
+    {"name": "Apt 201", "floor": 1, "points": [{"x":4,"y":0},{"x":10,"y":0},{"x":10,"y":4},{"x":4,"y":4}], "doors": [...]},
+    // ... apartments 202-210
+    
+    // FLOOR 2 - 10 apartments (floor: 2)
+    // FLOOR 3 - 10 apartments (floor: 3)
+    
+    // Stairwell connects all floors
+    {"name": "Stairwell", "floor": 0, "points": [{"x":0,"y":8},{"x":4,"y":8},{"x":4,"y":12},{"x":0,"y":12}]},
+    {"name": "Stairwell", "floor": 1, "points": [{"x":0,"y":8},{"x":4,"y":8},{"x":4,"y":12},{"x":0,"y":12}]},
+    {"name": "Stairwell", "floor": 2, "points": [{"x":0,"y":8},{"x":4,"y":8},{"x":4,"y":12},{"x":0,"y":12}]},
+    {"name": "Stairwell", "floor": 3, "points": [{"x":0,"y":8},{"x":4,"y":8},{"x":4,"y":12},{"x":0,"y":12}]}
+  ],
+  "furniture": [...]
+}
+
+MULTI-FLOOR LAYOUT STRATEGY:
+  
+For "4-floor building with 10 apartments per floor":
+
+FLOOR 0 (Ground Floor) - ALL rooms have "floor": 0:
+- Hallway: {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":50},{"x":0,"y":50}]}
+- Apt 101: {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":5},{"x":2,"y":5}]}
+- Apt 102: {"name":"Apt 102","floor":0,"points":[{"x":2,"y":5},{"x":8,"y":5},{"x":8,"y":10},{"x":2,"y":10}]}
+- ... Apt 103-110 (all with "floor":0)
+- Stairwell: {"name":"Stairwell","floor":0,"points":[{"x":0,"y":50},{"x":4,"y":50},{"x":4,"y":54},{"x":0,"y":54}]}
+  
+FLOOR 1 (First Floor) - SAME x,y layout but "floor": 1:
+- Hallway: {"name":"Hallway","floor":1,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":50},{"x":0,"y":50}]}
+- Apt 201: {"name":"Apt 201","floor":1,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":5},{"x":2,"y":5}]}
+- Apt 202: {"name":"Apt 202","floor":1,"points":[{"x":2,"y":5},{"x":8,"y":5},{"x":8,"y":10},{"x":2,"y":10}]}
+- ... Apt 203-210 (all with "floor":1)
+- Stairwell: {"name":"Stairwell","floor":1,"points":[{"x":0,"y":50},{"x":4,"y":50},{"x":4,"y":54},{"x":0,"y":54}]}
+
+FLOOR 2 & 3: Repeat same pattern with "floor":2 and "floor":3
+
+CRITICAL: EVERY room MUST have "floor" property!
+- Ground floor = "floor": 0
+- First floor = "floor": 1  
+- Second floor = "floor": 2
+- Third floor = "floor": 3
+
+Apartment Layout (6m x 5m each):
+- Living area: 3m x 3m
+- Bedroom: 3m x 2m
+- Bathroom: 2m x 2m
+- Arrange 10 units in single row along hallway
 
 DOOR PLACEMENT RULES:
 - Place doors on shared walls between rooms
@@ -107,24 +157,36 @@ DOOR PLACEMENT RULES:
 - Kitchen connects to: Living, Dining
 - Bathrooms connect to: Hallway or Bedroom (ensuite)
 
-ROOM POSITIONING - CONNECTED LAYOUT (NO GAPS):
+CRITICAL POSITIONING RULES - ROOMS MUST TOUCH:
 
-For 2 rooms (side by side, SHARED WALL):
-Room 1: x: 0-7, y: 0-6
-Room 2: x: 7-11, y: 0-4  (shares wall at x=7)
+RULE 1: Adjacent rooms MUST share the EXACT same coordinate
+- If Room 1 ends at x=7, Room 2 MUST start at x=7 (NOT x=7.5 or x=8)
+- If Room 1 ends at y=6, Room 3 MUST start at y=6 (NOT y=6.5 or y=7)
 
-For 3 rooms (L-shape, CONNECTED):
-Room 1 (Living): x: 0-7, y: 0-6
-Room 2 (Kitchen): x: 7-11, y: 0-4  (shares wall with Room 1)
-Room 3 (Bedroom): x: 0-5, y: 6-10  (shares wall with Room 1)
+CORRECT EXAMPLES (ROOMS TOUCHING):
 
-For 4 rooms (connected layout):
-Room 1 (Living): x: 0-7, y: 0-6
-Room 2 (Kitchen): x: 7-11, y: 0-4  (shares wall)
-Room 3 (Bedroom): x: 0-5, y: 6-10  (shares wall)
-Room 4 (Bathroom): x: 5-8, y: 6-9  (shares wall)
+2-Room Apartment:
+Living Room: points: [{"x":0,"y":0}, {"x":7,"y":0}, {"x":7,"y":6}, {"x":0,"y":6}]
+Kitchen: points: [{"x":7,"y":0}, {"x":11,"y":0}, {"x":11,"y":4}, {"x":7,"y":4}]
+✓ Both rooms share x=7 wall - PERFECT!
 
-CRITICAL: Rooms should SHARE walls (no gaps), not have space between them!
+3-Room L-Shape:
+Living Room: points: [{"x":0,"y":0}, {"x":7,"y":0}, {"x":7,"y":6}, {"x":0,"y":6}]
+Kitchen: points: [{"x":7,"y":0}, {"x":11,"y":0}, {"x":11,"y":4}, {"x":7,"y":4}]
+Bedroom: points: [{"x":0,"y":6}, {"x":5,"y":6}, {"x":5,"y":10}, {"x":0,"y":10}]
+✓ Living-Kitchen share x=7, Living-Bedroom share y=6 - PERFECT!
+
+4-Room Connected:
+Living: points: [{"x":0,"y":0}, {"x":7,"y":0}, {"x":7,"y":6}, {"x":0,"y":6}]
+Kitchen: points: [{"x":7,"y":0}, {"x":11,"y":0}, {"x":11,"y":4}, {"x":7,"y":4}]
+Bedroom: points: [{"x":0,"y":6}, {"x":5,"y":6}, {"x":5,"y":10}, {"x":0,"y":10}]
+Bathroom: points: [{"x":5,"y":6}, {"x":8,"y":6}, {"x":8,"y":9}, {"x":5,"y":9}]
+✓ All rooms perfectly connected - PERFECT!
+
+WRONG EXAMPLES (DO NOT DO THIS):
+❌ Room 1 ends at x=7, Room 2 starts at x=8 (gap!)
+❌ Room 1 ends at y=6, Room 2 starts at y=7 (gap!)
+❌ Room 1 ends at x=7, Room 2 starts at x=6.5 (overlap!)
 
 ROOM SIZES (width x height in meters):
 - Living Room: 7x6m
@@ -266,18 +328,115 @@ ACCENT WALL IDEAS:
 
 User Request: ${prompt}
 
-IMPORTANT: 
-1. Rooms should SHARE walls (connected), NOT have gaps between them
-2. Calculate exact x,y coordinates so rooms touch but DON'T overlap
-3. Add doors on shared walls between connected rooms
-4. Choose ONE cohesive color palette from the options above
-5. Vary wall colors between rooms for visual interest
-6. Match furniture colors to your chosen palette
+IMPORTANT: If user asks for multiple floors/stories, create ONE floor only.
+The system will automatically replicate it to create all floors.
+Focus on creating a COMPLETE single floor with ALL requested rooms.
 
-EXAMPLE CONNECTED LAYOUT:
-Living Room (0,0 to 7,6) connects to Kitchen (7,0 to 11,4) - door at (7, 2)
-Living Room (0,0 to 7,6) connects to Bedroom (0,6 to 5,10) - door at (2.5, 6)
-Kitchen (7,0 to 11,4) connects to Dining (7,4 to 11,8) - door at (9, 4)`;
+MANDATORY PROCESS FOR MULTI-FLOOR:
+
+1. CALCULATE TOTAL ROOMS:
+   - "4 floors with 10 apartments" = 40 apartments + 4 hallways + 4 stairwells = 48 rooms minimum
+   - "3-story office" = 24 offices + 3 hallways + 3 stairwells = 30 rooms minimum
+
+2. CREATE FLOOR 0 (Ground Floor):
+   - Hallway: {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}]}
+   - Apt 101: {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}]}
+   - Apt 102: {"name":"Apt 102","floor":0,"points":[{"x":2,"y":6},{"x":8,"y":6},{"x":8,"y":12},{"x":2,"y":12}]}
+   - Apt 103-110: Continue pattern...
+   - Stairwell: {"name":"Stairwell","floor":0,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}]}
+
+3. COPY FLOOR 0 TO CREATE FLOOR 1:
+   - Take ALL rooms from floor 0
+   - Change "floor":0 to "floor":1
+   - Change names: Apt 101 → Apt 201, Apt 102 → Apt 202, etc.
+   - Keep EXACT SAME x,y coordinates!
+
+4. REPEAT FOR ALL FLOORS:
+   - Floor 2: Apt 301-310, "floor":2
+   - Floor 3: Apt 401-410, "floor":3
+   - Floor 4: Apt 501-510, "floor":4
+
+COMPLETE EXAMPLE - 4-FLOOR BUILDING (48 rooms total):
+{
+  "name": "4-Story Apartment Complex",
+  "rooms": [
+    // FLOOR 0 - Ground (12 rooms)
+    {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}],"color":"#F5F5DC","floorTexture":"tile","wallColor":"#ECEFF1","dimensions":{"width":2,"height":60},"doors":[]},
+    {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#2C3E50","dimensions":{"width":6,"height":6},"doors":[{"position":{"x":2,"y":3},"width":0.9,"connectedTo":"Hallway"}]},
+    {"name":"Apt 102","floor":0,"points":[{"x":2,"y":6},{"x":8,"y":6},{"x":8,"y":12},{"x":2,"y":12}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#4A5568","dimensions":{"width":6,"height":6},"doors":[{"position":{"x":2,"y":9},"width":0.9,"connectedTo":"Hallway"}]},
+    // ... Apt 103-110 (same pattern, y increases by 6)
+    {"name":"Stairwell","floor":0,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}],"color":"#D7CCC8","floorTexture":"concrete","wallColor":"#BCAAA4","dimensions":{"width":4,"height":4},"doors":[{"position":{"x":2,"y":60},"width":0.9,"connectedTo":"Hallway"}]},
+    
+    // FLOOR 1 - First (12 rooms) - SAME x,y as floor 0!
+    {"name":"Hallway","floor":1,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}],"color":"#F5F5DC","floorTexture":"tile","wallColor":"#ECEFF1","dimensions":{"width":2,"height":60},"doors":[]},
+    {"name":"Apt 201","floor":1,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#2C3E50","dimensions":{"width":6,"height":6},"doors":[{"position":{"x":2,"y":3},"width":0.9,"connectedTo":"Hallway"}]},
+    // ... Apt 202-210
+    {"name":"Stairwell","floor":1,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}],"color":"#D7CCC8","floorTexture":"concrete","wallColor":"#BCAAA4","dimensions":{"width":4,"height":4},"doors":[{"position":{"x":2,"y":60},"width":0.9,"connectedTo":"Hallway"}]},
+    
+    // FLOOR 2 - Second (12 rooms)
+    // ... Apt 301-310 with "floor":2
+    
+    // FLOOR 3 - Third (12 rooms)
+    // ... Apt 401-410 with "floor":3
+  ],
+  "furniture": [...]
+}
+
+YOU MUST CREATE ALL FLOORS! Don't stop at floor 0!
+
+🚨 MANDATORY FINAL CHECKLIST 🚨
+
+BEFORE YOU RESPOND, COUNT YOUR ROOMS:
+- User asked for "4 floors with 10 apartments" = Need 40+ apartments
+- Did you create 40+ apartments? If NO → ADD MORE ROOMS NOW!
+- User asked for "3-story building" = Need 3 floors (floor: 0, 1, 2)
+- Did you create floor 0, 1, AND 2? If NO → ADD MORE FLOORS NOW!
+
+CHECKLIST:
+✓ Do adjacent rooms share exact coordinates? (Room1 x=7 = Room2 x=7)
+✓ NO gaps between rooms on same floor?
+✓ NO overlaps?
+✓ EVERY room has "floor" property?
+✓ Multi-floor: ALL floors use SAME x,y coordinates?
+✓ Doors on shared walls?
+✓ ONE color palette?
+
+🔴 CRITICAL MULTI-FLOOR CHECK:
+- If user mentions "4 floors" → You MUST have rooms with floor: 0, 1, 2, 3
+- If user mentions "10 apartments per floor" → You MUST have 10 apartments on EACH floor
+- Count your rooms: floor 0 count + floor 1 count + floor 2 count + floor 3 count = total
+- If total is less than requested, ADD MORE ROOMS!
+
+If ANY check fails, FIX IT NOW before responding!
+
+STEP-BY-STEP LAYOUT PROCESS:
+
+Step 1: Start with first room at origin
+Living Room: x: 0 to 7, y: 0 to 6
+
+Step 2: Add adjacent room - SHARE the wall coordinate
+Kitchen: x: 7 to 11, y: 0 to 4
+(Kitchen STARTS where Living ENDS at x=7)
+
+Step 3: Add room below - SHARE the wall coordinate  
+Bedroom: x: 0 to 5, y: 6 to 10
+(Bedroom STARTS where Living ENDS at y=6)
+
+Step 4: Add connecting room - SHARE both walls
+Bathroom: x: 5 to 8, y: 6 to 9
+(Bathroom STARTS where Bedroom ENDS at x=5, and where Living ENDS at y=6)
+
+Step 5: Add doors on SHARED walls
+Living-Kitchen door: position x=7, y=2 (on shared x=7 wall)
+Living-Bedroom door: position x=2.5, y=6 (on shared y=6 wall)
+Bedroom-Bathroom door: position x=5, y=7.5 (on shared x=5 wall)
+
+MANDATORY RULES:
+1. NO GAPS: If Room A ends at x=7, Room B MUST start at x=7
+2. NO OVERLAPS: Each coordinate belongs to only ONE room
+3. DOORS ON SHARED WALLS: Place doors where rooms touch
+4. Use ONE color palette consistently
+5. Vary wall colors for visual interest`;
 
   const result = await model.generateContent(systemPrompt);
   const response = result.response;
@@ -289,31 +448,74 @@ Kitchen (7,0 to 11,4) connects to Dining (7,4 to 11,8) - door at (9, 4)`;
   return JSON.parse(text);
 }
 
-// Validate and fix AI-generated plan - trust Gemini's layout!
+// Validate and enhance AI-generated plan
 function validateAndFixPlan(aiPlan: any, prompt: string) {
   try {
-    // Trust Gemini's room positioning - only validate structure
     if (aiPlan.rooms && aiPlan.rooms.length > 0) {
-      console.log("Using Gemini's layout directly");
+      console.log(`Received ${aiPlan.rooms.length} rooms from AI`);
+      
+      // Check if multi-floor was requested but not delivered
+      const isMultiFloor = prompt.toLowerCase().match(/(\d+)[\s-]*(floor|story|level|storey)/);
+      const requestedFloors = isMultiFloor ? parseInt(isMultiFloor[1]) : 1;
+      
+      // Get unique floor numbers from AI response
+      const floorSet = new Set(aiPlan.rooms.map((r: any) => r.floor || 0));
+      const floorsGenerated = Array.from(floorSet);
+      console.log(`Requested ${requestedFloors} floors, AI generated ${floorsGenerated.length} floors`);
+      
+      // If AI didn't generate enough floors, replicate floor 0
+      let allRooms = [...aiPlan.rooms];
+      if (requestedFloors > floorsGenerated.length && floorsGenerated.length === 1) {
+        console.log(`Replicating floor 0 to create ${requestedFloors} floors`);
+        const floor0Rooms = aiPlan.rooms.filter((r: any) => (r.floor || 0) === 0);
+        
+        for (let floorNum = 1; floorNum < requestedFloors; floorNum++) {
+          const newFloorRooms = floor0Rooms.map((room: any) => ({
+            ...room,
+            name: room.name.replace(/\b1\d{2}\b/, (match: string) => {
+              const num = parseInt(match);
+              return String((floorNum + 1) * 100 + (num % 100));
+            }).replace(/\bApt \d+/, `Apt ${(floorNum + 1)}0${room.name.match(/\d+$/)?.[0] || '1'}`),
+            floor: floorNum
+          }));
+          allRooms = [...allRooms, ...newFloorRooms];
+        }
+        console.log(`Total rooms after replication: ${allRooms.length}`);
+      }
+      
+      // Add furniture to rooms that don't have any
+      let allFurniture = aiPlan.furniture || [];
+      allRooms.forEach((room: any) => {
+        const roomFurniture = allFurniture.filter((f: any) => 
+          (f.floor || 0) === (room.floor || 0) &&
+          isInsideRoom(f.position, room)
+        );
+        
+        if (roomFurniture.length === 0 && !room.name.toLowerCase().includes('hallway') && !room.name.toLowerCase().includes('stairwell')) {
+          // Add basic furniture based on room type
+          const newFurniture = generateRoomFurniture(room);
+          allFurniture = [...allFurniture, ...newFurniture];
+        }
+      });
       
       return {
         name: aiPlan.name || `AI Generated ${prompt.split(' ').slice(0, 3).join(' ')}`,
-        rooms: aiPlan.rooms.map((room: any) => ({
+        rooms: allRooms.map((room: any) => ({
           ...room,
-          // Ensure points array exists
           points: room.points || [
             { x: 0, y: 0 },
             { x: room.dimensions?.width || 5, y: 0 },
             { x: room.dimensions?.width || 5, y: room.dimensions?.height || 4 },
             { x: 0, y: room.dimensions?.height || 4 }
-          ]
+          ],
+          floor: room.floor || 0
         })),
-        furniture: (aiPlan.furniture || []).map((item: any) => ({
+        furniture: allFurniture.map((item: any) => ({
           ...item,
-          // Trust Gemini's furniture positioning
           position: item.position || { x: 0, y: 0 },
           rotation: item.rotation || 0,
-          scale: item.scale || { x: 1, y: 1 }
+          scale: item.scale || { x: 1, y: 1 },
+          floor: item.floor || 0
         }))
       };
     }
@@ -321,8 +523,65 @@ function validateAndFixPlan(aiPlan: any, prompt: string) {
     console.log("AI plan validation failed, using template:", error);
   }
   
-  // Fallback to template if validation fails
   return generatePerfectLayout(prompt);
+}
+
+// Check if furniture is inside room bounds
+function isInsideRoom(position: any, room: any): boolean {
+  if (!position || !room.points) return false;
+  const points = room.points;
+  const minX = Math.min(...points.map((p: any) => p.x));
+  const maxX = Math.max(...points.map((p: any) => p.x));
+  const minY = Math.min(...points.map((p: any) => p.y));
+  const maxY = Math.max(...points.map((p: any) => p.y));
+  
+  return position.x >= minX && position.x <= maxX && position.y >= minY && position.y <= maxY;
+}
+
+// Generate basic furniture for a room
+function generateRoomFurniture(room: any): any[] {
+  const furniture: any[] = [];
+  const points = room.points || [];
+  if (points.length === 0) return furniture;
+  
+  const minX = Math.min(...points.map((p: any) => p.x));
+  const maxX = Math.max(...points.map((p: any) => p.x));
+  const minY = Math.min(...points.map((p: any) => p.y));
+  const maxY = Math.max(...points.map((p: any) => p.y));
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+  const floor = room.floor || 0;
+  
+  const roomName = room.name.toLowerCase();
+  
+  // Apartment/Living space
+  if (roomName.includes('apt') || roomName.includes('apartment') || roomName.includes('unit')) {
+    furniture.push(
+      { type: "bed-1", name: "Bed", position: { x: centerX, y: minY + 1.5 }, rotation: 0, scale: { x: 1, y: 1 }, color: "#2C3E50", floor },
+      { type: "nightstand-1", name: "Nightstand", position: { x: centerX + 1.2, y: minY + 1.5 }, rotation: 0, scale: { x: 1, y: 1 }, color: "#8B4513", floor },
+      { type: "wardrobe-1", name: "Wardrobe", position: { x: maxX - 0.8, y: centerY }, rotation: 270, scale: { x: 1, y: 1 }, color: "#34495E", floor }
+    );
+  }
+  
+  // Office
+  if (roomName.includes('office')) {
+    furniture.push(
+      { type: "desk-1", name: "Desk", position: { x: centerX, y: minY + 1 }, rotation: 0, scale: { x: 1, y: 1 }, color: "#8B4513", floor },
+      { type: "chair-1", name: "Office Chair", position: { x: centerX, y: minY + 2 }, rotation: 180, scale: { x: 1, y: 1 }, color: "#34495E", floor },
+      { type: "bookshelf-1", name: "Bookshelf", position: { x: maxX - 0.5, y: centerY }, rotation: 270, scale: { x: 1, y: 1 }, color: "#654321", floor }
+    );
+  }
+  
+  // Hotel room
+  if (roomName.includes('room') && (roomName.includes('hotel') || roomName.match(/\d{3}/))) {
+    furniture.push(
+      { type: "bed-2", name: "Hotel Bed", position: { x: centerX, y: minY + 1.5 }, rotation: 0, scale: { x: 1, y: 1 }, color: "#2C3E50", floor },
+      { type: "nightstand-1", name: "Nightstand", position: { x: centerX + 1.5, y: minY + 1.5 }, rotation: 0, scale: { x: 1, y: 1 }, color: "#8B4513", floor },
+      { type: "tv-1", name: "TV", position: { x: centerX, y: maxY - 0.8 }, rotation: 180, scale: { x: 1, y: 1 }, color: "#2C3E50", floor }
+    );
+  }
+  
+  return furniture;
 }
 
 // Generate perfect layout without AI
