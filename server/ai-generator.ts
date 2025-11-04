@@ -80,8 +80,7 @@ JSON FORMAT (Single Floor):
       "floorTexture": "wood",
       "wallColor": "#FFFFFF",
       "dimensions": {"width": 7, "height": 6},
-      "floor": 0,
-      "doors": [{"position": {"x": 7, "y": 3}, "width": 0.9, "connectedTo": "Kitchen"}]
+      "floor": 0
     }
   ],
   "furniture": [{"type": "sofa-1", "name": "Modern Sofa", "position": {"x": 3.5, "y": 2}, "rotation": 0, "scale": {"x": 1, "y": 1}, "color": "#4A5568", "floor": 0}]
@@ -95,13 +94,13 @@ Example 4-Floor Building with 10 Units Per Floor:
   "name": "4-Story Apartment Complex",
   "rooms": [
     // GROUND FLOOR - Lobby + 10 apartments
-    {"name": "Lobby", "floor": 0, "points": [{"x":0,"y":0},{"x":4,"y":0},{"x":4,"y":8},{"x":0,"y":8}], "doors": [...]},
-    {"name": "Apt 101", "floor": 0, "points": [{"x":4,"y":0},{"x":10,"y":0},{"x":10,"y":4},{"x":4,"y":4}], "doors": [...]},
-    {"name": "Apt 102", "floor": 0, "points": [{"x":10,"y":0},{"x":16,"y":0},{"x":16,"y":4},{"x":10,"y":4}], "doors": [...]},
+    {"name": "Lobby", "floor": 0, "points": [{"x":0,"y":0},{"x":4,"y":0},{"x":4,"y":8},{"x":0,"y":8}], "color": "#F5F5DC", "wallColor": "#FFFFFF"},
+    {"name": "Apt 101", "floor": 0, "points": [{"x":4,"y":0},{"x":10,"y":0},{"x":10,"y":4},{"x":4,"y":4}], "color": "#E8E8E8", "wallColor": "#D0D0D0"},
+    {"name": "Apt 102", "floor": 0, "points": [{"x":10,"y":0},{"x":16,"y":0},{"x":16,"y":4},{"x":10,"y":4}], "color": "#E8E8E8", "wallColor": "#D0D0D0"},
     // ... apartments 103-110
     
     // FLOOR 1 - 10 apartments (same x,y layout, floor: 1)
-    {"name": "Apt 201", "floor": 1, "points": [{"x":4,"y":0},{"x":10,"y":0},{"x":10,"y":4},{"x":4,"y":4}], "doors": [...]},
+    {"name": "Apt 201", "floor": 1, "points": [{"x":4,"y":0},{"x":10,"y":0},{"x":10,"y":4},{"x":4,"y":4}], "color": "#E8E8E8", "wallColor": "#D0D0D0"},
     // ... apartments 202-210
     
     // FLOOR 2 - 10 apartments (floor: 2)
@@ -121,18 +120,18 @@ MULTI-FLOOR LAYOUT STRATEGY:
 For "4-floor building with 10 apartments per floor":
 
 FLOOR 0 (Ground Floor) - ALL rooms have "floor": 0:
-- Hallway: {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":50},{"x":0,"y":50}]}
-- Apt 101: {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":5},{"x":2,"y":5}]}
-- Apt 102: {"name":"Apt 102","floor":0,"points":[{"x":2,"y":5},{"x":8,"y":5},{"x":8,"y":10},{"x":2,"y":10}]}
+- Hallway: {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":50},{"x":0,"y":50}],"color":"#F5F5DC","wallColor":"#FFFFFF"}
+- Apt 101: {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":5},{"x":2,"y":5}],"color":"#E8E8E8","wallColor":"#D0D0D0"}
+- Apt 102: {"name":"Apt 102","floor":0,"points":[{"x":2,"y":5},{"x":8,"y":5},{"x":8,"y":10},{"x":2,"y":10}],"color":"#E8E8E8","wallColor":"#D0D0D0"}
 - ... Apt 103-110 (all with "floor":0)
-- Stairwell: {"name":"Stairwell","floor":0,"points":[{"x":0,"y":50},{"x":4,"y":50},{"x":4,"y":54},{"x":0,"y":54}]}
+- Stairwell: {"name":"Stairwell","floor":0,"points":[{"x":0,"y":50},{"x":4,"y":50},{"x":4,"y":54},{"x":0,"y":54}],"color":"#D7CCC8","wallColor":"#BCAAA4"}
   
 FLOOR 1 (First Floor) - SAME x,y layout but "floor": 1:
-- Hallway: {"name":"Hallway","floor":1,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":50},{"x":0,"y":50}]}
-- Apt 201: {"name":"Apt 201","floor":1,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":5},{"x":2,"y":5}]}
-- Apt 202: {"name":"Apt 202","floor":1,"points":[{"x":2,"y":5},{"x":8,"y":5},{"x":8,"y":10},{"x":2,"y":10}]}
+- Hallway: {"name":"Hallway","floor":1,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":50},{"x":0,"y":50}],"color":"#F5F5DC","wallColor":"#FFFFFF"}
+- Apt 201: {"name":"Apt 201","floor":1,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":5},{"x":2,"y":5}],"color":"#E8E8E8","wallColor":"#D0D0D0"}
+- Apt 202: {"name":"Apt 202","floor":1,"points":[{"x":2,"y":5},{"x":8,"y":5},{"x":8,"y":10},{"x":2,"y":10}],"color":"#E8E8E8","wallColor":"#D0D0D0"}
 - ... Apt 203-210 (all with "floor":1)
-- Stairwell: {"name":"Stairwell","floor":1,"points":[{"x":0,"y":50},{"x":4,"y":50},{"x":4,"y":54},{"x":0,"y":54}]}
+- Stairwell: {"name":"Stairwell","floor":1,"points":[{"x":0,"y":50},{"x":4,"y":50},{"x":4,"y":54},{"x":0,"y":54}],"color":"#D7CCC8","wallColor":"#BCAAA4"}
 
 FLOOR 2 & 3: Repeat same pattern with "floor":2 and "floor":3
 
@@ -148,14 +147,8 @@ Apartment Layout (6m x 5m each):
 - Bathroom: 2m x 2m
 - Arrange 10 units in single row along hallway
 
-DOOR PLACEMENT RULES:
-- Place doors on shared walls between rooms
-- Door width: 0.9m (standard)
-- Position doors centered on shared walls
-- Living room connects to: Kitchen, Dining, Hallway
-- Bedrooms connect to: Hallway, Master Bath (ensuite)
-- Kitchen connects to: Living, Dining
-- Bathrooms connect to: Hallway or Bedroom (ensuite)
+IMPORTANT: DO NOT generate doors. The system doesn't support door generation yet.
+Focus on creating beautiful, modern room layouts with proper color schemes.
 
 CRITICAL POSITIONING RULES - ROOMS MUST TOUCH:
 
@@ -199,61 +192,79 @@ ROOM SIZES (width x height in meters):
 
 MODERN COLOR PALETTES - Choose ONE cohesive palette per design:
 
-Palette 1 - Scandinavian Minimalist:
-Living Room: #F5F5DC floor (wood), #F8F9FA walls (soft white)
-Master Bedroom: #F0E6D2 floor (light wood), #E8EAF6 walls (lavender gray)
-Bedroom: #F5F5DC floor (wood), #FFF8E1 walls (warm cream)
-Kitchen: #FFFFFF floor (tile), #ECEFF1 walls (cool gray)
-Dining Room: #F5F5DC floor (wood), #F1F8E9 walls (sage green)
-Bathroom: #F8F9FA floor (tile), #E0F2F1 walls (mint)
-Home Office: #F5F5DC floor (wood), #E3F2FD walls (sky blue)
+Palette 1 - Scandinavian Minimalist (Light & Airy):
+Living Room: #F5F5DC floor, #FFFFFF walls
+Master Bedroom: #F0E6D2 floor, #F5F5F5 walls
+Bedroom: #F5F5DC floor, #FAFAFA walls
+Kitchen: #FFFFFF floor, #F8F9FA walls
+Dining Room: #F5F5DC floor, #F0F0F0 walls
+Bathroom: #FFFFFF floor, #F5F5F5 walls
+Office: #F5F5DC floor, #FAFAFA walls
 
-Palette 2 - Modern Luxe:
-Living Room: #D4C4A8 floor (oak), #2C3E50 walls (navy blue)
-Master Bedroom: #E8DCC4 floor (maple), #4A5568 walls (charcoal)
-Bedroom: #F0E6D2 floor (birch), #5D4E37 walls (mocha)
-Kitchen: #FFFFFF floor (marble), #34495E walls (slate)
-Dining Room: #C9B896 floor (walnut), #8B7355 walls (taupe)
-Bathroom: #F8F9FA floor (tile), #546E7A walls (blue gray)
-Home Office: #D4C4A8 floor (oak), #37474F walls (dark gray)
+Palette 2 - Modern Luxe (Dark & Sophisticated):
+Living Room: #2C2C2C floor, #1A1A1A walls
+Master Bedroom: #3A3A3A floor, #2D2D2D walls
+Bedroom: #2C2C2C floor, #252525 walls
+Kitchen: #1F1F1F floor, #1A1A1A walls
+Dining Room: #2C2C2C floor, #222222 walls
+Bathroom: #3A3A3A floor, #2D2D2D walls
+Office: #2C2C2C floor, #1F1F1F walls
 
-Palette 3 - Warm Contemporary:
-Living Room: #E8DCC4 floor (honey oak), #FFF3E0 walls (peach cream)
-Master Bedroom: #F0E6D2 floor (ash), #FFEBEE walls (blush pink)
-Bedroom: #F5F5DC floor (pine), #FFF9C4 walls (soft yellow)
-Kitchen: #FFFAF0 floor (tile), #FFE0B2 walls (apricot)
-Dining Room: #E8DCC4 floor (oak), #FFCCBC walls (coral)
-Bathroom: #FFF8E1 floor (tile), #FCE4EC walls (rose)
-Home Office: #F0E6D2 floor (wood), #FFF8DC walls (cornsilk)
+Palette 3 - Warm Earth (Natural & Cozy):
+Living Room: #D4A574 floor, #C19A6B walls
+Master Bedroom: #C8B08D floor, #B8A07A walls
+Bedroom: #D4A574 floor, #BFA080 walls
+Kitchen: #E8D5C4 floor, #D4C4B0 walls
+Dining Room: #C8B08D floor, #B8A07A walls
+Bathroom: #E8D5C4 floor, #D4C4B0 walls
+Office: #D4A574 floor, #C19A6B walls
 
-Palette 4 - Bold & Vibrant:
-Living Room: #8B7355 floor (dark wood), #1A237E walls (deep indigo)
-Master Bedroom: #A0826D floor (mahogany), #4A148C walls (deep purple)
-Bedroom: #8B7355 floor (walnut), #006064 walls (teal)
-Kitchen: #F5F5F5 floor (tile), #D32F2F walls (crimson accent)
-Dining Room: #654321 floor (dark oak), #C62828 walls (burgundy)
-Bathroom: #FFFFFF floor (tile), #00695C walls (emerald)
-Home Office: #8B7355 floor (wood), #01579B walls (ocean blue)
+Palette 4 - Cool Industrial (Urban & Edgy):
+Living Room: #4A5568 floor, #3C4858 walls
+Master Bedroom: #546E7A floor, #455A64 walls
+Bedroom: #4A5568 floor, #3C4858 walls
+Kitchen: #37474F floor, #2C3E50 walls
+Dining Room: #546E7A floor, #455A64 walls
+Bathroom: #607D8B floor, #546E7A walls
+Office: #4A5568 floor, #37474F walls
 
-Palette 5 - Earth Tones:
-Living Room: #D2B48C floor (tan wood), #8D6E63 walls (terracotta)
-Master Bedroom: #DEB887 floor (burlywood), #A1887F walls (warm taupe)
-Bedroom: #F5DEB3 floor (wheat), #BCAAA4 walls (mushroom)
-Kitchen: #FAF0E6 floor (linen tile), #D7CCC8 walls (sand)
-Dining Room: #D2B48C floor (tan), #A1887F walls (clay)
-Bathroom: #FFF8DC floor (tile), #EFEBE9 walls (stone)
-Home Office: #DEB887 floor (wood), #D7CCC8 walls (warm gray)
+Palette 5 - Vibrant Modern (Bold & Energetic):
+Living Room: #E74C3C floor, #C0392B walls
+Master Bedroom: #9B59B6 floor, #8E44AD walls
+Bedroom: #3498DB floor, #2980B9 walls
+Kitchen: #F39C12 floor, #E67E22 walls
+Dining Room: #1ABC9C floor, #16A085 walls
+Bathroom: #34495E floor, #2C3E50 walls
+Office: #E74C3C floor, #C0392B walls
 
-Palette 6 - Coastal Breeze:
-Living Room: #F5F5DC floor (driftwood), #B3E5FC walls (sky blue)
-Master Bedroom: #FFF8E1 floor (sand), #80DEEA walls (aqua)
-Bedroom: #FFFAF0 floor (ivory), #A7FFEB walls (seafoam)
-Kitchen: #FFFFFF floor (tile), #E0F7FA walls (ice blue)
-Dining Room: #F5F5DC floor (wood), #B2DFDB walls (turquoise)
-Bathroom: #F0F4C3 floor (tile), #C5E1A5 walls (sea green)
-Home Office: #FFF8E1 floor (wood), #81D4FA walls (ocean)
+Palette 6 - Pastel Dream (Soft & Elegant):
+Living Room: #FFE5E5 floor, #FFD6D6 walls
+Master Bedroom: #E5E5FF floor, #D6D6FF walls
+Bedroom: #E5FFE5 floor, #D6FFD6 walls
+Kitchen: #FFFFE5 floor, #FFFFD6 walls
+Dining Room: #FFE5FF floor, #FFD6FF walls
+Bathroom: #E5FFFF floor, #D6FFFF walls
+Office: #FFE5E5 floor, #FFD6D6 walls
 
-IMPORTANT: Pick ONE palette and use it consistently across all rooms for a cohesive design!
+Palette 7 - Monochrome Elegance (Timeless):
+Living Room: #E8E8E8 floor, #D0D0D0 walls
+Master Bedroom: #F0F0F0 floor, #E0E0E0 walls
+Bedroom: #E8E8E8 floor, #D8D8D8 walls
+Kitchen: #FFFFFF floor, #F5F5F5 walls
+Dining Room: #E8E8E8 floor, #D0D0D0 walls
+Bathroom: #F0F0F0 floor, #E0E0E0 walls
+Office: #E8E8E8 floor, #D8D8D8 walls
+
+Palette 8 - Sunset Warmth (Inviting):
+Living Room: #FF9A76 floor, #FF8C61 walls
+Master Bedroom: #FFB88C floor, #FFA876 walls
+Bedroom: #FFCBA4 floor, #FFB88C walls
+Kitchen: #FFE5D9 floor, #FFD4C4 walls
+Dining Room: #FF9A76 floor, #FF8C61 walls
+Bathroom: #FFE5D9 floor, #FFD4C4 walls
+Office: #FFB88C floor, #FFA876 walls
+
+IMPORTANT: Pick ONE palette and use it consistently across all rooms for a cohesive, modern design!
 
 FURNITURE BY ROOM:
 Living Room: sofa-1, coffee-table-1, tv-1, rug-1, plant-1, lamp-1
@@ -339,11 +350,11 @@ MANDATORY PROCESS FOR MULTI-FLOOR:
    - "3-story office" = 24 offices + 3 hallways + 3 stairwells = 30 rooms minimum
 
 2. CREATE FLOOR 0 (Ground Floor):
-   - Hallway: {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}]}
-   - Apt 101: {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}]}
-   - Apt 102: {"name":"Apt 102","floor":0,"points":[{"x":2,"y":6},{"x":8,"y":6},{"x":8,"y":12},{"x":2,"y":12}]}
+   - Hallway: {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}],"color":"#F5F5DC","wallColor":"#FFFFFF"}
+   - Apt 101: {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}],"color":"#E8E8E8","wallColor":"#D0D0D0"}
+   - Apt 102: {"name":"Apt 102","floor":0,"points":[{"x":2,"y":6},{"x":8,"y":6},{"x":8,"y":12},{"x":2,"y":12}],"color":"#E8E8E8","wallColor":"#D0D0D0"}
    - Apt 103-110: Continue pattern...
-   - Stairwell: {"name":"Stairwell","floor":0,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}]}
+   - Stairwell: {"name":"Stairwell","floor":0,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}],"color":"#D7CCC8","wallColor":"#BCAAA4"}
 
 3. COPY FLOOR 0 TO CREATE FLOOR 1:
    - Take ALL rooms from floor 0
@@ -361,17 +372,17 @@ COMPLETE EXAMPLE - 4-FLOOR BUILDING (48 rooms total):
   "name": "4-Story Apartment Complex",
   "rooms": [
     // FLOOR 0 - Ground (12 rooms)
-    {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}],"color":"#F5F5DC","floorTexture":"tile","wallColor":"#ECEFF1","dimensions":{"width":2,"height":60},"doors":[]},
-    {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#2C3E50","dimensions":{"width":6,"height":6},"doors":[{"position":{"x":2,"y":3},"width":0.9,"connectedTo":"Hallway"}]},
-    {"name":"Apt 102","floor":0,"points":[{"x":2,"y":6},{"x":8,"y":6},{"x":8,"y":12},{"x":2,"y":12}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#4A5568","dimensions":{"width":6,"height":6},"doors":[{"position":{"x":2,"y":9},"width":0.9,"connectedTo":"Hallway"}]},
+    {"name":"Hallway","floor":0,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}],"color":"#F5F5DC","floorTexture":"tile","wallColor":"#ECEFF1","dimensions":{"width":2,"height":60}},
+    {"name":"Apt 101","floor":0,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#2C3E50","dimensions":{"width":6,"height":6}},
+    {"name":"Apt 102","floor":0,"points":[{"x":2,"y":6},{"x":8,"y":6},{"x":8,"y":12},{"x":2,"y":12}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#4A5568","dimensions":{"width":6,"height":6}},
     // ... Apt 103-110 (same pattern, y increases by 6)
-    {"name":"Stairwell","floor":0,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}],"color":"#D7CCC8","floorTexture":"concrete","wallColor":"#BCAAA4","dimensions":{"width":4,"height":4},"doors":[{"position":{"x":2,"y":60},"width":0.9,"connectedTo":"Hallway"}]},
+    {"name":"Stairwell","floor":0,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}],"color":"#D7CCC8","floorTexture":"concrete","wallColor":"#BCAAA4","dimensions":{"width":4,"height":4}},
     
     // FLOOR 1 - First (12 rooms) - SAME x,y as floor 0!
-    {"name":"Hallway","floor":1,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}],"color":"#F5F5DC","floorTexture":"tile","wallColor":"#ECEFF1","dimensions":{"width":2,"height":60},"doors":[]},
-    {"name":"Apt 201","floor":1,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#2C3E50","dimensions":{"width":6,"height":6},"doors":[{"position":{"x":2,"y":3},"width":0.9,"connectedTo":"Hallway"}]},
+    {"name":"Hallway","floor":1,"points":[{"x":0,"y":0},{"x":2,"y":0},{"x":2,"y":60},{"x":0,"y":60}],"color":"#F5F5DC","floorTexture":"tile","wallColor":"#ECEFF1","dimensions":{"width":2,"height":60}},
+    {"name":"Apt 201","floor":1,"points":[{"x":2,"y":0},{"x":8,"y":0},{"x":8,"y":6},{"x":2,"y":6}],"color":"#F5F5DC","floorTexture":"wood","wallColor":"#2C3E50","dimensions":{"width":6,"height":6}},
     // ... Apt 202-210
-    {"name":"Stairwell","floor":1,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}],"color":"#D7CCC8","floorTexture":"concrete","wallColor":"#BCAAA4","dimensions":{"width":4,"height":4},"doors":[{"position":{"x":2,"y":60},"width":0.9,"connectedTo":"Hallway"}]},
+    {"name":"Stairwell","floor":1,"points":[{"x":0,"y":60},{"x":4,"y":60},{"x":4,"y":64},{"x":0,"y":64}],"color":"#D7CCC8","floorTexture":"concrete","wallColor":"#BCAAA4","dimensions":{"width":4,"height":4}},
     
     // FLOOR 2 - Second (12 rooms)
     // ... Apt 301-310 with "floor":2
@@ -398,8 +409,8 @@ CHECKLIST:
 ✓ NO overlaps?
 ✓ EVERY room has "floor" property?
 ✓ Multi-floor: ALL floors use SAME x,y coordinates?
-✓ Doors on shared walls?
-✓ ONE color palette?
+✓ ONE color palette used consistently?
+✓ Modern, sophisticated color combinations?
 
 🔴 CRITICAL MULTI-FLOOR CHECK:
 - If user mentions "4 floors" → You MUST have rooms with floor: 0, 1, 2, 3
@@ -426,17 +437,12 @@ Step 4: Add connecting room - SHARE both walls
 Bathroom: x: 5 to 8, y: 6 to 9
 (Bathroom STARTS where Bedroom ENDS at x=5, and where Living ENDS at y=6)
 
-Step 5: Add doors on SHARED walls
-Living-Kitchen door: position x=7, y=2 (on shared x=7 wall)
-Living-Bedroom door: position x=2.5, y=6 (on shared y=6 wall)
-Bedroom-Bathroom door: position x=5, y=7.5 (on shared x=5 wall)
-
 MANDATORY RULES:
 1. NO GAPS: If Room A ends at x=7, Room B MUST start at x=7
 2. NO OVERLAPS: Each coordinate belongs to only ONE room
-3. DOORS ON SHARED WALLS: Place doors where rooms touch
-4. Use ONE color palette consistently
-5. Vary wall colors for visual interest`;
+3. Use ONE color palette consistently
+4. Vary wall colors for visual interest within the chosen palette
+5. Create modern, sophisticated color combinations`;
 
   const result = await model.generateContent(systemPrompt);
   const response = result.response;
@@ -611,11 +617,7 @@ function generateApartmentLayout() {
         color: "#E8DCC4",
         floorTexture: "wood",
         wallColor: "#2C3E50",
-        dimensions: { width: 6.5, height: 5.5 },
-        doors: [
-          { position: { x: 6.5, y: 1.5 }, width: 0.9, connectedTo: "Kitchen" },
-          { position: { x: 2.5, y: 5.5 }, width: 0.9, connectedTo: "Bedroom" }
-        ]
+        dimensions: { width: 6.5, height: 5.5 }
       },
       {
         name: "Kitchen",
@@ -628,10 +630,7 @@ function generateApartmentLayout() {
         color: "#FFFFFF",
         floorTexture: "tile",
         wallColor: "#ECEFF1",
-        dimensions: { width: 4, height: 3.5 },
-        doors: [
-          { position: { x: 6.5, y: 1.5 }, width: 0.9, connectedTo: "Living Room" }
-        ]
+        dimensions: { width: 4, height: 3.5 }
       },
       {
         name: "Bedroom",
@@ -644,11 +643,7 @@ function generateApartmentLayout() {
         color: "#F0E6D2",
         floorTexture: "carpet",
         wallColor: "#4A5568",
-        dimensions: { width: 5, height: 4.2 },
-        doors: [
-          { position: { x: 2.5, y: 5.5 }, width: 0.9, connectedTo: "Living Room" },
-          { position: { x: 5, y: 7 }, width: 0.9, connectedTo: "Bathroom" }
-        ]
+        dimensions: { width: 5, height: 4.2 }
       },
       {
         name: "Bathroom",
@@ -661,10 +656,7 @@ function generateApartmentLayout() {
         color: "#F8F9FA",
         floorTexture: "tile",
         wallColor: "#B3E5FC",
-        dimensions: { width: 2.5, height: 2.2 },
-        doors: [
-          { position: { x: 5, y: 7 }, width: 0.9, connectedTo: "Bedroom" }
-        ]
+        dimensions: { width: 2.5, height: 2.2 }
       }
     ],
     furniture: [
@@ -712,11 +704,7 @@ function generateHouseLayout() {
         color: "#D2B48C",
         floorTexture: "wood",
         wallColor: "#8D6E63",
-        dimensions: { width: 7.5, height: 6.5 },
-        doors: [
-          { position: { x: 7.5, y: 2 }, width: 0.9, connectedTo: "Dining Room" },
-          { position: { x: 3, y: 6.5 }, width: 0.9, connectedTo: "Master Bedroom" }
-        ]
+        dimensions: { width: 7.5, height: 6.5 }
       },
       {
         name: "Dining Room",
@@ -729,11 +717,7 @@ function generateHouseLayout() {
         color: "#D2B48C",
         floorTexture: "wood",
         wallColor: "#A1887F",
-        dimensions: { width: 4.7, height: 4.5 },
-        doors: [
-          { position: { x: 7.5, y: 2 }, width: 0.9, connectedTo: "Living Room" },
-          { position: { x: 10, y: 4.5 }, width: 0.9, connectedTo: "Kitchen" }
-        ]
+        dimensions: { width: 4.7, height: 4.5 }
       },
       {
         name: "Kitchen",
@@ -746,10 +730,7 @@ function generateHouseLayout() {
         color: "#FAF0E6",
         floorTexture: "tile",
         wallColor: "#D7CCC8",
-        dimensions: { width: 4.7, height: 3.7 },
-        doors: [
-          { position: { x: 10, y: 4.5 }, width: 0.9, connectedTo: "Dining Room" }
-        ]
+        dimensions: { width: 4.7, height: 3.7 }
       },
       {
         name: "Master Bedroom",
@@ -762,10 +743,7 @@ function generateHouseLayout() {
         color: "#DEB887",
         floorTexture: "carpet",
         wallColor: "#A1887F",
-        dimensions: { width: 6, height: 4.7 },
-        doors: [
-          { position: { x: 3, y: 6.5 }, width: 0.9, connectedTo: "Living Room" }
-        ]
+        dimensions: { width: 6, height: 4.7 }
       },
       {
         name: "Bedroom",
@@ -778,10 +756,7 @@ function generateHouseLayout() {
         color: "#F5DEB3",
         floorTexture: "carpet",
         wallColor: "#BCAAA4",
-        dimensions: { width: 4.2, height: 4 },
-        doors: [
-          { position: { x: 10.7, y: 11 }, width: 0.9, connectedTo: "Bathroom" }
-        ]
+        dimensions: { width: 4.2, height: 4 }
       },
       {
         name: "Bathroom",
@@ -794,10 +769,7 @@ function generateHouseLayout() {
         color: "#FFF8DC",
         floorTexture: "tile",
         wallColor: "#EFEBE9",
-        dimensions: { width: 2.5, height: 2.5 },
-        doors: [
-          { position: { x: 10.7, y: 11 }, width: 0.9, connectedTo: "Bedroom" }
-        ]
+        dimensions: { width: 2.5, height: 2.5 }
       }
     ],
     furniture: [

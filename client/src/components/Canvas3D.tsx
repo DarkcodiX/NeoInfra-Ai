@@ -5,173 +5,56 @@ import * as THREE from 'three';
 import { useFloorPlan } from '../lib/stores/useFloorPlan';
 import { furnitureCategories } from '../lib/furniture-data';
 
-// 3D Room Component with multi-floor support
+// 3D Room Component - walls only, no floor/roof geometry
 function Room3D({ room }: { room: any }) {
   const floorLevel = room.floor || 0;
   const floorHeight = 3.5; // 3.5m per floor
   const baseY = floorLevel * floorHeight;
   
-  const points = room.points.map((p: any) => [p.x, baseY, p.y]);
-  
-  // Create floor geometry
-  const floorGeometry = new THREE.Shape();
-  if (points.length > 0) {
-    floorGeometry.moveTo(points[0][0], points[0][2]);
-    for (let i = 1; i < points.length; i++) {
-      floorGeometry.lineTo(points[i][0], points[i][2]);
-    }
-    floorGeometry.closePath();
-  }
+  // Get room points in 3D space
+  const roomPoints = room.points || [];
 
   return (
     <group>
-      {/* Floor - positioned at correct floor level with realistic material */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, baseY + 0.01, 0]} receiveShadow>
-        <shapeGeometry args={[floorGeometry]} />
-        <meshStandardMaterial 
-          color={room.color || '#F8F9FA'}
-          roughness={room.floorTexture === 'wood' ? 0.4 : room.floorTexture === 'tile' ? 0.2 : 0.8}
-          metalness={room.floorTexture === 'tile' ? 0.15 : 0.05}
-          polygonOffset
-          polygonOffsetFactor={-1}
-          polygonOffsetUnits={-1}
-        />
-      </mesh>
-      
-      {/* Ceiling for multi-floor buildings */}
-      {floorLevel < 10 && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, baseY + floorHeight - 0.15, 0]} receiveShadow>
-          <shapeGeometry args={[floorGeometry]} />
-          <meshStandardMaterial 
-            color="#FAFAFA"
-            roughness={0.95}
-            metalness={0.02}
-            polygonOffset
-            polygonOffsetFactor={-2}
-            polygonOffsetUnits={-2}
-          />
-        </mesh>
-      )}
-      
-      {/* Walls - modern height and styling with realistic paint finish */}
-      {points.map((point: number[], index: number) => {
-        const nextPoint = points[(index + 1) % points.length];
-        const wallLength = Math.sqrt(
-          Math.pow(nextPoint[0] - point[0], 2) + 
-          Math.pow(nextPoint[2] - point[2], 2)
-        );
-        const wallAngle = Math.atan2(nextPoint[2] - point[2], nextPoint[0] - point[0]);
+      {/* Walls only - built from room boundary points */}
+      {roomPoints.map((point: any, index: number) => {
+        const nextPoint = roomPoints[(index + 1) % roomPoints.length];
         
-        // Calculate wall center position
-        const wallCenterX = (point[0] + nextPoint[0]) / 2;
-        const wallCenterZ = (point[2] + nextPoint[2]) / 2;
+        // Calculate wall dimensions
+        const dx = nextPoint.x - point.x;
+        const dz = nextPoint.y - point.y;
+        const wallLength = Math.sqrt(dx * dx + dz * dz);
+        const wallAngle = Math.atan2(dz, dx);
         
-        // Add small offset based on room name to prevent z-fighting on shared walls
-        // This ensures each room's wall is slightly offset from adjacent rooms
-        const roomHash = (room.name || '').split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
-        const wallOffset = (roomHash % 10) * 0.001; // 0-0.009 offset
-        
-        // Offset wall slightly inward based on wall normal
-        const normalX = Math.cos(wallAngle + Math.PI / 2);
-        const normalZ = Math.sin(wallAngle + Math.PI / 2);
+        // Wall center position
+        const centerX = (point.x + nextPoint.x) / 2;
+        const centerZ = (point.y + nextPoint.y) / 2;
         
         return (
           <mesh
             key={index}
-            position={[
-              wallCenterX + normalX * wallOffset,
-              baseY + 1.5,
-              wallCenterZ + normalZ * wallOffset
-            ]}
+            position={[centerX, baseY + 1.5, centerZ]}
             rotation={[0, wallAngle, 0]}
             castShadow
             receiveShadow
           >
-            <boxGeometry args={[wallLength, 3, 0.12]} />
+            <boxGeometry args={[wallLength, 3, 0.15]} />
             <meshStandardMaterial 
               color={room.wallColor || '#FFFFFF'}
               roughness={0.85}
               metalness={0.01}
-              side={2}
-              polygonOffset
-              polygonOffsetFactor={roomHash % 5}
-              polygonOffsetUnits={roomHash % 5}
             />
           </mesh>
         );
       })}
+
       
-      {/* Doors - smart rotation based on wall position */}
-      {room.doors && room.doors.map((door: any, doorIndex: number) => {
-        const doorWidth = door.width || 0.9;
-        const doorHeight = 2.1;
-        const doorX = door.position?.x || 0;
-        const doorZ = door.position?.y || 0;
-        
-        // Detect which wall the door is on by checking room bounds
-        const roomPoints = room.points || [];
-        const minX = Math.min(...roomPoints.map((p: any) => p.x));
-        const maxX = Math.max(...roomPoints.map((p: any) => p.x));
-        const minY = Math.min(...roomPoints.map((p: any) => p.y));
-        const maxY = Math.max(...roomPoints.map((p: any) => p.y));
-        
-        // Determine door orientation based on position
-        let doorRotation = 0;
-        let isVerticalWall = false;
-        
-        // Check if door is on vertical walls (left/right)
-        if (Math.abs(doorX - minX) < 0.5 || Math.abs(doorX - maxX) < 0.5) {
-          doorRotation = Math.PI / 2; // 90 degrees
-          isVerticalWall = true;
-        }
-        // Otherwise it's on horizontal walls (top/bottom)
-        
-        return (
-          <group key={`door-${doorIndex}`} rotation={[0, doorRotation, 0]}>
-            {/* Door frame - wooden */}
-            <mesh position={[doorX, baseY + doorHeight / 2, doorZ]} castShadow receiveShadow>
-              <boxGeometry args={[doorWidth + 0.15, doorHeight + 0.2, 0.2]} />
-              <meshStandardMaterial color="#654321" roughness={0.5} metalness={0.1} />
-            </mesh>
-            
-            {/* Door panel - slightly open */}
-            <mesh 
-              position={[
-                doorX + (isVerticalWall ? 0 : -doorWidth * 0.15), 
-                baseY + doorHeight / 2, 
-                doorZ + (isVerticalWall ? -doorWidth * 0.15 : 0)
-              ]} 
-              rotation={[0, isVerticalWall ? -Math.PI / 8 : Math.PI / 8, 0]}
-              castShadow 
-              receiveShadow
-            >
-              <boxGeometry args={[doorWidth * 0.95, doorHeight - 0.1, 0.05]} />
-              <meshStandardMaterial color="#8B4513" roughness={0.3} metalness={0.05} />
-            </mesh>
-            
-            {/* Door handle - gold */}
-            <mesh 
-              position={[
-                doorX + (isVerticalWall ? 0 : doorWidth * 0.3), 
-                baseY + 1.05, 
-                doorZ + (isVerticalWall ? doorWidth * 0.3 : 0.1)
-              ]} 
-              castShadow 
-              receiveShadow
-            >
-              <cylinderGeometry args={[0.04, 0.04, 0.12, 16]} />
-              <meshStandardMaterial color="#D4AF37" roughness={0.2} metalness={0.9} />
-            </mesh>
-          </group>
-        );
-      })}
-      
-      {/* Room label - elegant positioning */}
+      {/* Room label */}
       <Text
         position={[
-          points.reduce((sum: number, p: number[]) => sum + p[0], 0) / points.length,
+          roomPoints.reduce((sum: number, p: any) => sum + p.x, 0) / roomPoints.length,
           baseY + 3.3,
-          points.reduce((sum: number, p: number[]) => sum + p[2], 0) / points.length
+          roomPoints.reduce((sum: number, p: any) => sum + p.y, 0) / roomPoints.length
         ]}
         fontSize={0.35}
         color="#34495E"
@@ -210,8 +93,14 @@ function Furniture3D({ item }: { item: any }) {
     return defaultColor || '#6C757D';
   };
 
-  const basePosition = [item.position.x, 0.01, item.position.y];
-  const rotation = [0, (item.rotation || 0) * Math.PI / 180, 0];
+  // Calculate floor level for furniture - must sit ON TOP of floor
+  const floorLevel = item.floor || 0;
+  const floorHeight = 3.5; // Same as Room3D
+  const baseY = floorLevel * floorHeight;
+  
+  // Position furniture ON the floor surface (floor is at baseY + 0.01)
+  const basePosition: [number, number, number] = [item.position.x, baseY + 0.02, item.position.y];
+  const rotation: [number, number, number] = [0, (item.rotation || 0) * Math.PI / 180, 0];
   const color = getFurnitureColor(item.type, item.color);
 
   // Create detailed furniture models based on type
@@ -445,7 +334,7 @@ function Furniture3D({ item }: { item: any }) {
         // Default furniture as improved box
         return (
           <mesh
-            position={[...basePosition, scaledHeight / 2]}
+            position={[basePosition[0], basePosition[1] + scaledHeight / 2, basePosition[2]]}
             rotation={rotation}
             castShadow
             receiveShadow
