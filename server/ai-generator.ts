@@ -150,11 +150,12 @@ Apartment Layout (6m x 5m each):
 IMPORTANT: DO NOT generate doors. The system doesn't support door generation yet.
 Focus on creating beautiful, modern room layouts with proper color schemes.
 
-CRITICAL POSITIONING RULES - ROOMS MUST TOUCH:
+CRITICAL POSITIONING RULES - ROOMS MUST TOUCH PERFECTLY:
 
-RULE 1: Adjacent rooms MUST share the EXACT same coordinate
-- If Room 1 ends at x=7, Room 2 MUST start at x=7 (NOT x=7.5 or x=8)
-- If Room 1 ends at y=6, Room 3 MUST start at y=6 (NOT y=6.5 or y=7)
+RULE 1: Adjacent rooms MUST share the EXACT same coordinate with NO gaps
+- If Room 1 ends at x=7, Room 2 MUST start at x=7 (NOT x=7.15 or x=7.5 or x=8)
+- If Room 1 ends at y=6, Room 3 MUST start at y=6 (NOT y=6.15 or y=6.5 or y=7)
+- Walls are 0.15m thick and handled automatically - DO NOT add wall thickness to coordinates!
 
 CORRECT EXAMPLES (ROOMS TOUCHING):
 
@@ -263,7 +264,7 @@ Kitchen: #FFE5D9 floor, #FFD4C4 walls
 Dining Room: #FF9A76 floor, #FF8C61 walls
 Bathroom: #FFE5D9 floor, #FFD4C4 walls
 Office: #FFB88C floor, #FFA876 walls
-
+  
 IMPORTANT: Pick ONE palette and use it consistently across all rooms for a cohesive, modern design!
 
 FURNITURE BY ROOM:
@@ -272,7 +273,7 @@ Master Bedroom: bed-2, nightstand-1 (x2), wardrobe-2, rug-1, lamp-1
 Bedroom: bed-1, nightstand-1, wardrobe-1, rug-1
 Kitchen: fridge-1, counter-1, stove-1, island-1
 Dining Room: dining-table-1, chair-2 (x4-6), rug-1
-Bathroom: toilet-1, sink-1, shower-1
+Bathroom: toilet-1, sink-1, shower-1 
 Home Office: desk-1, chair-1, bookshelf-1, lamp-1
 
 FURNITURE POSITIONING:
@@ -282,7 +283,7 @@ FURNITURE POSITIONING:
 - TVs: opposite wall (y = room.maxY - 0.8)
 - Tables: center of room
 - Wardrobes: side walls
-
+  
 FURNITURE COLORS (match to your chosen palette):
 
 Scandinavian: 
@@ -324,18 +325,45 @@ Coastal Breeze:
 Plants (all palettes): #27AE60, #2ECC71, #1E8449 (green)
 Appliances: #F8F9FA, #ECEFF1, #CFD8DC (stainless steel)
 
-DESIGN ENHANCEMENTS:
-1. Create visual interest with varied wall colors per room
-2. Use darker/bolder colors for accent walls in living spaces
-3. Keep bathrooms and kitchens lighter and brighter
-4. Coordinate furniture colors with wall palette
-5. Add texture variety: wood floors in living areas, carpet in bedrooms, tile in wet areas
+MODERN DESIGN PRINCIPLES:
 
-ACCENT WALL IDEAS:
-- Living Room: One wall 2-3 shades darker than others
-- Master Bedroom: Headboard wall in deeper tone
-- Dining Room: Feature wall behind dining table
-- Home Office: Motivating color behind desk
+1. **Color Harmony**: Use ONE cohesive palette throughout
+   - Living spaces: Bold, statement colors
+   - Bedrooms: Calming, softer tones
+   - Bathrooms/Kitchens: Clean, bright colors
+   - Hallways: Neutral transitions
+
+2. **Visual Interest**: Create depth and dimension
+   - Vary wall colors between adjacent rooms
+   - Use complementary colors from your chosen palette
+   - First wall of each room can be an accent (automatically darker)
+
+3. **Material Variety**:
+   - Living/Dining/Office: Wood floors (#D4A574, #C8B08D, #F5F5DC)
+   - Bedrooms: Carpet or wood (#F0E6D2, #E8DCC4)
+   - Kitchen/Bathroom: Tile (#FFFFFF, #F8F9FA, #FFFAF0)
+
+4. **Modern Aesthetics**:
+   - Clean lines and simple geometry
+   - Balanced proportions (rooms 4-7m wide, 3-6m deep)
+   - Logical flow between spaces
+   - Adequate circulation space
+
+5. **Sophisticated Combinations**:
+   Example 1 - Monochrome Elegance:
+   - Living: #E8E8E8 floor, #D0D0D0 walls
+   - Kitchen: #FFFFFF floor, #F5F5F5 walls
+   - Bedroom: #F0F0F0 floor, #E0E0E0 walls
+   
+   Example 2 - Warm Modern:
+   - Living: #D4A574 floor, #C19A6B walls
+   - Kitchen: #E8D5C4 floor, #D4C4B0 walls
+   - Bedroom: #C8B08D floor, #B8A07A walls
+   
+   Example 3 - Cool Contemporary:
+   - Living: #4A5568 floor, #3C4858 walls
+   - Kitchen: #37474F floor, #2C3E50 walls
+   - Bedroom: #546E7A floor, #455A64 walls
 
 User Request: ${prompt}
 
@@ -614,10 +642,11 @@ function generateApartmentLayout() {
           { x: 6.5, y: 5.5 },
           { x: 0, y: 5.5 }
         ],
-        color: "#E8DCC4",
+        color: "#D4A574",
         floorTexture: "wood",
-        wallColor: "#2C3E50",
-        dimensions: { width: 6.5, height: 5.5 }
+        wallColor: "#C19A6B",
+        dimensions: { width: 6.5, height: 5.5 },
+        floor: 0
       },
       {
         name: "Kitchen",
@@ -627,10 +656,11 @@ function generateApartmentLayout() {
           { x: 10.5, y: 3.5 },
           { x: 6.5, y: 3.5 }
         ],
-        color: "#FFFFFF",
+        color: "#E8D5C4",
         floorTexture: "tile",
-        wallColor: "#ECEFF1",
-        dimensions: { width: 4, height: 3.5 }
+        wallColor: "#D4C4B0",
+        dimensions: { width: 4, height: 3.5 },
+        floor: 0
       },
       {
         name: "Bedroom",
@@ -640,10 +670,11 @@ function generateApartmentLayout() {
           { x: 5, y: 9.7 },
           { x: 0, y: 9.7 }
         ],
-        color: "#F0E6D2",
+        color: "#C8B08D",
         floorTexture: "carpet",
-        wallColor: "#4A5568",
-        dimensions: { width: 5, height: 4.2 }
+        wallColor: "#B8A07A",
+        dimensions: { width: 5, height: 4.2 },
+        floor: 0
       },
       {
         name: "Bathroom",
@@ -653,10 +684,11 @@ function generateApartmentLayout() {
           { x: 7.5, y: 7.7 },
           { x: 5, y: 7.7 }
         ],
-        color: "#F8F9FA",
+        color: "#FFFFFF",
         floorTexture: "tile",
-        wallColor: "#B3E5FC",
-        dimensions: { width: 2.5, height: 2.2 }
+        wallColor: "#F5F5F5",
+        dimensions: { width: 2.5, height: 2.2 },
+        floor: 0
       }
     ],
     furniture: [
@@ -701,10 +733,11 @@ function generateHouseLayout() {
           { x: 7.5, y: 6.5 },
           { x: 0, y: 6.5 }
         ],
-        color: "#D2B48C",
+        color: "#4A5568",
         floorTexture: "wood",
-        wallColor: "#8D6E63",
-        dimensions: { width: 7.5, height: 6.5 }
+        wallColor: "#3C4858",
+        dimensions: { width: 7.5, height: 6.5 },
+        floor: 0
       },
       {
         name: "Dining Room",
@@ -714,10 +747,11 @@ function generateHouseLayout() {
           { x: 12.2, y: 4.5 },
           { x: 7.5, y: 4.5 }
         ],
-        color: "#D2B48C",
+        color: "#546E7A",
         floorTexture: "wood",
-        wallColor: "#A1887F",
-        dimensions: { width: 4.7, height: 4.5 }
+        wallColor: "#455A64",
+        dimensions: { width: 4.7, height: 4.5 },
+        floor: 0
       },
       {
         name: "Kitchen",
@@ -727,10 +761,11 @@ function generateHouseLayout() {
           { x: 12.2, y: 8.2 },
           { x: 7.5, y: 8.2 }
         ],
-        color: "#FAF0E6",
+        color: "#FFFFFF",
         floorTexture: "tile",
-        wallColor: "#D7CCC8",
-        dimensions: { width: 4.7, height: 3.7 }
+        wallColor: "#F5F5F5",
+        dimensions: { width: 4.7, height: 3.7 },
+        floor: 0
       },
       {
         name: "Master Bedroom",
@@ -740,10 +775,11 @@ function generateHouseLayout() {
           { x: 6, y: 11.2 },
           { x: 0, y: 11.2 }
         ],
-        color: "#DEB887",
+        color: "#546E7A",
         floorTexture: "carpet",
-        wallColor: "#A1887F",
-        dimensions: { width: 6, height: 4.7 }
+        wallColor: "#455A64",
+        dimensions: { width: 6, height: 4.7 },
+        floor: 0
       },
       {
         name: "Bedroom",
@@ -753,10 +789,11 @@ function generateHouseLayout() {
           { x: 10.7, y: 13 },
           { x: 6.5, y: 13 }
         ],
-        color: "#F5DEB3",
+        color: "#607D8B",
         floorTexture: "carpet",
-        wallColor: "#BCAAA4",
-        dimensions: { width: 4.2, height: 4 }
+        wallColor: "#546E7A",
+        dimensions: { width: 4.2, height: 4 },
+        floor: 0
       },
       {
         name: "Bathroom",
@@ -766,10 +803,11 @@ function generateHouseLayout() {
           { x: 13.2, y: 11.5 },
           { x: 10.7, y: 11.5 }
         ],
-        color: "#FFF8DC",
+        color: "#FFFFFF",
         floorTexture: "tile",
-        wallColor: "#EFEBE9",
-        dimensions: { width: 2.5, height: 2.5 }
+        wallColor: "#FAFAFA",
+        dimensions: { width: 2.5, height: 2.5 },
+        floor: 0
       }
     ],
     furniture: [

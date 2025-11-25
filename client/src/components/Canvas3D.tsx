@@ -5,7 +5,16 @@ import * as THREE from 'three';
 import { useFloorPlan } from '../lib/stores/useFloorPlan';
 import { furnitureCategories } from '../lib/furniture-data';
 
-// 3D Room Component - walls only, no floor/roof geometry
+// Helper function to adjust color brightness for accent walls
+function adjustColorBrightness(color: string, amount: number): string {
+  const hex = color.replace('#', '');
+  const r = Math.max(0, Math.min(255, parseInt(hex.substring(0, 2), 16) + amount * 255));
+  const g = Math.max(0, Math.min(255, parseInt(hex.substring(2, 4), 16) + amount * 255));
+  const b = Math.max(0, Math.min(255, parseInt(hex.substring(4, 6), 16) + amount * 255));
+  return `#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`;
+}
+
+// 3D Room Component - modern walls with no overlaps
 function Room3D({ room }: { room: any }) {
   const floorLevel = room.floor || 0;
   const floorHeight = 3.5; // 3.5m per floor
@@ -16,7 +25,7 @@ function Room3D({ room }: { room: any }) {
 
   return (
     <group>
-      {/* Walls only - built from room boundary points */}
+      {/* Clean walls - single mesh per wall, no overlaps */}
       {roomPoints.map((point: any, index: number) => {
         const nextPoint = roomPoints[(index + 1) % roomPoints.length];
         
@@ -24,25 +33,42 @@ function Room3D({ room }: { room: any }) {
         const dx = nextPoint.x - point.x;
         const dz = nextPoint.y - point.y;
         const wallLength = Math.sqrt(dx * dx + dz * dz);
+        
+        // Skip walls that are too short (likely errors)
+        if (wallLength < 0.1) return null;
+        
         const wallAngle = Math.atan2(dz, dx);
         
         // Wall center position
         const centerX = (point.x + nextPoint.x) / 2;
         const centerZ = (point.y + nextPoint.y) / 2;
         
+        // Offset wall inward to prevent overlaps with adjacent rooms
+        const offsetDistance = 0.08; // Slightly more than half wall thickness
+        const normalAngle = wallAngle + Math.PI / 2;
+        const offsetX = Math.cos(normalAngle) * offsetDistance;
+        const offsetZ = Math.sin(normalAngle) * offsetDistance;
+        
+        // Create unique key to prevent duplicate rendering
+        const wallKey = `${room.id}-wall-${index}`;
+        
+        // Determine if this is an accent wall (first wall of room)
+        const isAccentWall = index === 0;
+        const wallColor = room.wallColor || '#FFFFFF';
+        
         return (
           <mesh
-            key={index}
-            position={[centerX, baseY + 1.5, centerZ]}
+            key={wallKey}
+            position={[centerX + offsetX, baseY + 1.5, centerZ + offsetZ]}
             rotation={[0, wallAngle, 0]}
             castShadow
             receiveShadow
           >
-            <boxGeometry args={[wallLength, 3, 0.15]} />
+            <boxGeometry args={[wallLength - 0.02, 3, 0.12]} />
             <meshStandardMaterial 
-              color={room.wallColor || '#FFFFFF'}
-              roughness={0.85}
-              metalness={0.01}
+              color={isAccentWall ? adjustColorBrightness(wallColor, -0.15) : wallColor}
+              roughness={0.8}
+              metalness={0.02}
             />
           </mesh>
         );
