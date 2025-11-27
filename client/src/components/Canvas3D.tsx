@@ -437,35 +437,44 @@ function KeyboardControls() {
   const { selectedItem, currentPlan, updateFurniture } = useFloorPlan();
   const [moveMode, setMoveMode] = React.useState(false);
   const [rotateMode, setRotateMode] = React.useState(false);
+  const moveModeRef = React.useRef(false);
+  const rotateModeRef = React.useRef(false);
+  
+  // Keep refs in sync with state
+  React.useEffect(() => {
+    moveModeRef.current = moveMode;
+    rotateModeRef.current = rotateMode;
+  }, [moveMode, rotateMode]);
   
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!selectedItem || !currentPlan) {
-        console.log('No selection:', { selectedItem, hasPlan: !!currentPlan });
         return;
       }
       
       const furniture = currentPlan.furniture.find(f => f.id === selectedItem);
       if (!furniture) {
-        console.log('Furniture not found for id:', selectedItem);
         return;
       }
       
-      console.log('Key pressed:', e.key, 'Move mode:', moveMode, 'Rotate mode:', rotateMode);
+      const isMoving = moveModeRef.current;
+      const isRotating = rotateModeRef.current;
+      
+      console.log('Key:', e.key, 'Moving:', isMoving, 'Rotating:', isRotating);
       
       // Activate move mode with G or M key (like Blender)
-      if ((e.key === 'g' || e.key === 'G' || e.key === 'm' || e.key === 'M') && !moveMode && !rotateMode) {
+      if ((e.key === 'g' || e.key === 'G' || e.key === 'm' || e.key === 'M') && !isMoving && !isRotating) {
         e.preventDefault();
         setMoveMode(true);
-        console.log('Move mode activated - use arrow keys to move');
+        console.log('✅ MOVE MODE ACTIVATED - Use arrow keys!');
         return;
       }
       
       // Activate rotate mode with R key
-      if ((e.key === 'r' || e.key === 'R') && !moveMode && !rotateMode) {
+      if ((e.key === 'r' || e.key === 'R') && !isMoving && !isRotating) {
         e.preventDefault();
         setRotateMode(true);
-        console.log('Rotate mode activated - use arrow keys to rotate');
+        console.log('✅ ROTATE MODE ACTIVATED - Use ← →!');
         return;
       }
       
@@ -488,39 +497,39 @@ function KeyboardControls() {
       const step = e.shiftKey ? 0.5 : 0.1; // Shift for larger steps
       
       // Move mode controls
-      if (moveMode) {
-        let newPosition = { ...furniture.position };
+      if (isMoving) {
+        const currentPos = furniture.position;
         
         switch(e.key) {
           case 'ArrowUp':
             e.preventDefault();
-            newPosition.y -= step;
-            console.log('Moving up:', newPosition);
-            updateFurniture(selectedItem, { position: newPosition });
+            const newPosUp = { x: currentPos.x, y: currentPos.y - step };
+            console.log('Moving forward (Y-):', newPosUp);
+            updateFurniture(selectedItem, { position: newPosUp });
             break;
           case 'ArrowDown':
             e.preventDefault();
-            newPosition.y += step;
-            console.log('Moving down:', newPosition);
-            updateFurniture(selectedItem, { position: newPosition });
+            const newPosDown = { x: currentPos.x, y: currentPos.y + step };
+            console.log('Moving backward (Y+):', newPosDown);
+            updateFurniture(selectedItem, { position: newPosDown });
             break;
           case 'ArrowLeft':
             e.preventDefault();
-            newPosition.x -= step;
-            console.log('Moving left:', newPosition);
-            updateFurniture(selectedItem, { position: newPosition });
+            const newPosLeft = { x: currentPos.x - step, y: currentPos.y };
+            console.log('Moving left (X-):', newPosLeft);
+            updateFurniture(selectedItem, { position: newPosLeft });
             break;
           case 'ArrowRight':
             e.preventDefault();
-            newPosition.x += step;
-            console.log('Moving right:', newPosition);
-            updateFurniture(selectedItem, { position: newPosition });
+            const newPosRight = { x: currentPos.x + step, y: currentPos.y };
+            console.log('Moving right (X+):', newPosRight);
+            updateFurniture(selectedItem, { position: newPosRight });
             break;
         }
       }
       
       // Rotate mode controls
-      if (rotateMode) {
+      if (isRotating) {
         let newRotation = furniture.rotation || 0;
         
         switch(e.key) {
@@ -540,19 +549,7 @@ function KeyboardControls() {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedItem, currentPlan, updateFurniture, moveMode, rotateMode]);
-  
-  // Show mode indicator
-  if (moveMode || rotateMode) {
-    return (
-      <Html position={[0, 5, 0]} center>
-        <div className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg font-semibold">
-          {moveMode ? '🔄 MOVE MODE - Use Arrow Keys' : '🔄 ROTATE MODE - Use ← →'}
-          <div className="text-xs mt-1">Press Enter to confirm • Esc to cancel</div>
-        </div>
-      </Html>
-    );
-  }
+  }, [selectedItem, currentPlan, updateFurniture]);
   
   return null;
 }
@@ -704,16 +701,7 @@ export function Canvas3D() {
         />
       </Canvas>
       
-      {/* 3D Controls Info */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-sm space-y-1">
-        <p className="font-semibold text-gray-700">🎥 Camera:</p>
-        <p className="text-gray-600">Left-drag rotate • Right-drag pan • Scroll zoom</p>
-        <p className="font-semibold text-gray-700 mt-2">🎯 Object Controls:</p>
-        <p className="text-gray-600">Click to select</p>
-        <p className="text-blue-600 font-medium">G or M → Move mode (arrow keys)</p>
-        <p className="text-blue-600 font-medium">R → Rotate mode (← →)</p>
-        <p className="text-gray-500 text-xs mt-1">Enter to confirm • Esc to cancel • Shift for larger steps</p>
-      </div>
+
     </div>
   );
 }
