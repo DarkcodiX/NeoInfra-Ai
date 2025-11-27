@@ -49,7 +49,7 @@ export function Canvas2D() {
   const drawGrid = useCallback((ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
     if (!currentPlan || !showGrid) return;
     
-    ctx.strokeStyle = '#E5E7EB';
+    ctx.strokeStyle = '#E5E7EB';    
     ctx.lineWidth = 1;
     
     const gridSize = currentPlan.gridSize * scale;

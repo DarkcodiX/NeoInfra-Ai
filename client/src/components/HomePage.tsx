@@ -53,16 +53,6 @@ export function HomePage({ onCreateNew, onViewProjects, onViewProfile }: HomePag
               </div>
               <span className="text-xl font-semibold text-gray-900">NeoInfra AI</span>
             </div>
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={onViewProjects}>
-                <FolderOpen className="w-4 h-4 mr-2" />
-                Projects
-              </Button>
-              <Button variant="ghost" onClick={onViewProfile}>
-                <User className="w-4 h-4 mr-2" />
-                Profile
-              </Button>
-            </div>
           </div>
         </div>
       </nav>
@@ -81,9 +71,9 @@ export function HomePage({ onCreateNew, onViewProjects, onViewProfile }: HomePag
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 animate-slide-up-delay-3">
+          <div className="flex justify-center animate-slide-up-delay-3">
             <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-300 border-2 hover:border-opacity-100 overflow-hidden"
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-300 border-2 hover:border-opacity-100 overflow-hidden max-w-md"
               style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}
               onClick={onCreateNew}
             >
@@ -94,7 +84,7 @@ export function HomePage({ onCreateNew, onViewProjects, onViewProfile }: HomePag
                 <div className="space-y-3">
                   <h3 className="text-2xl font-bold text-gray-900">Create New Design</h3>
                   <p className="text-gray-600">
-                    Start a fresh floor plan from scratch with our intuitive design tools
+                    Start a fresh floor plan from scratch with our intuitive AI-powered design tools
                   </p>
                 </div>
                 <Button 
@@ -102,56 +92,6 @@ export function HomePage({ onCreateNew, onViewProjects, onViewProfile }: HomePag
                   style={{ background: 'linear-gradient(135deg, #D1C398 0%, #B8A873 100%)' }}
                 >
                   Get Started
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-300 border-2 hover:border-opacity-100"
-              style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}
-              onClick={onViewProjects}
-            >
-              <CardContent className="p-8 text-center space-y-6">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl group-hover:scale-110 transition-transform shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
-                  <FolderOpen className="w-10 h-10" style={{ color: '#B8A873' }} />
-                </div>
-                <div className="space-y-3">
-                  <h3 className="text-2xl font-bold text-gray-900">My Projects</h3>
-                  <p className="text-gray-600">
-                    View and manage all your saved floor plans and designs
-                  </p>
-                </div>
-                <Button 
-                  variant="outline"
-                  className="w-full group-hover:shadow-lg transition-all"
-                  style={{ borderColor: '#D1C398', color: '#B8A873' }}
-                >
-                  View Projects
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-300 border-2 hover:border-opacity-100"
-              style={{ borderColor: 'rgba(209, 195, 152, 0.3)' }}
-              onClick={onViewProfile}
-            >
-              <CardContent className="p-8 text-center space-y-6">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl group-hover:scale-110 transition-transform shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(209, 195, 152, 0.2) 0%, rgba(184, 168, 115, 0.2) 100%)' }}>
-                  <User className="w-10 h-10" style={{ color: '#B8A873' }} />
-                </div>
-                <div className="space-y-3">
-                  <h3 className="text-2xl font-bold text-gray-900">My Profile</h3>
-                  <p className="text-gray-600">
-                    Manage your account settings and preferences
-                  </p>
-                </div>
-                <Button 
-                  variant="outline"
-                  className="w-full group-hover:shadow-lg transition-all"
-                  style={{ borderColor: '#D1C398', color: '#B8A873' }}
-                >
-                  View Profile
                 </Button>
               </CardContent>
             </Card>

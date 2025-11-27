@@ -7,9 +7,7 @@ export function Navigation() {
 
   const navItems = [
     { path: '/', label: 'Home' },
-    { path: '/projects', label: 'Projects' },
     { path: '/editor', label: 'Editor' },
-    { path: '/profile', label: 'Profile' },
   ];
 
   return (
