@@ -1,14 +1,9 @@
 import React from 'react';
 import { useFloorPlan } from '../lib/stores/useFloorPlan';
-import { Toolbar } from './Toolbar';
 import { ViewModeToggle } from './ViewModeToggle';
 import { Canvas2D } from './Canvas2D';
 import { Canvas3D } from './Canvas3D';
-import { FurnitureLibrary } from './FurnitureLibrary';
 import { PropertyPanel } from './PropertyPanel';
-import { ProjectGallery } from './ProjectGallery';
-import { RoomCustomizer } from './RoomCustomizer';
-import { ShoppingList } from './ShoppingList';
 import { AIComposer } from './AIComposer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
@@ -30,37 +25,8 @@ export function FloorPlanner() {
         <ViewModeToggle />
       </div>
       
-      {/* Toolbar */}
-      <Toolbar />
-      
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar */}
-        <div className="w-80 bg-white border-r border-gray-200">
-          <Tabs defaultValue="ai" className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-4 bg-gray-100 m-2">
-              <TabsTrigger value="ai" className="text-xs">AI</TabsTrigger>
-              <TabsTrigger value="projects" className="text-xs">Projects</TabsTrigger>
-              <TabsTrigger value="furniture" className="text-xs">Furniture</TabsTrigger>
-              <TabsTrigger value="rooms" className="text-xs">Rooms</TabsTrigger>
-            </TabsList>
-            <div className="flex-1 overflow-hidden">
-              <TabsContent value="ai" className="h-full m-0 p-4 overflow-y-auto">
-                <AIComposer />
-              </TabsContent>
-              <TabsContent value="projects" className="h-full m-0">
-                <ProjectGallery />
-              </TabsContent>
-              <TabsContent value="furniture" className="h-full m-0">
-                <FurnitureLibrary />
-              </TabsContent>
-              <TabsContent value="rooms" className="h-full m-0">
-                <RoomCustomizer />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </div>
-        
         {/* Canvas Area */}
         <div className="flex-1 relative">
           {viewMode === '2d' ? (
@@ -70,19 +36,19 @@ export function FloorPlanner() {
           )}
         </div>
         
-        {/* Right Sidebar */}
+        {/* Right Sidebar - AI Composer & Properties */}
         <div className="w-80 bg-white border-l border-gray-200">
-          <Tabs defaultValue="properties" className="h-full flex flex-col">
+          <Tabs defaultValue="ai" className="h-full flex flex-col">
             <TabsList className="grid w-full grid-cols-2 bg-gray-100 m-2">
+              <TabsTrigger value="ai" className="text-xs">AI Composer</TabsTrigger>
               <TabsTrigger value="properties" className="text-xs">Properties</TabsTrigger>
-              <TabsTrigger value="shopping" className="text-xs">Shopping List</TabsTrigger>
             </TabsList>
             <div className="flex-1 overflow-hidden">
+              <TabsContent value="ai" className="h-full m-0 p-4 overflow-y-auto">
+                <AIComposer />
+              </TabsContent>
               <TabsContent value="properties" className="h-full m-0">
                 <PropertyPanel />
-              </TabsContent>
-              <TabsContent value="shopping" className="h-full m-0">
-                <ShoppingList />
               </TabsContent>
             </div>
           </Tabs>

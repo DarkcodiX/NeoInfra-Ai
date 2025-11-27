@@ -10,11 +10,11 @@ export async function generateFloorPlan(prompt: string) {
   try {
     // Try AI generation first
     const aiPlan = await generateWithAI(prompt);
-    
+                            
     // Validate and fix the AI plan
     const validatedPlan = validateAndFixPlan(aiPlan, prompt);
     
-    return {
+    return {    
       id: Math.random().toString(36).substring(2, 11),
       name: validatedPlan.name,
       rooms: validatedPlan.rooms.map((room: any) => ({
@@ -61,30 +61,52 @@ export async function generateFloorPlan(prompt: string) {
 async function generateWithAI(prompt: string) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   
-  const systemPrompt = `You are an architect. Create a floor plan in JSON format.
+  const systemPrompt = `You are an expert architect and interior designer. Create a PERFECT floor plan in JSON format.
 
-RULES:
-1. Return ONLY JSON (no markdown, no text, no explanations)
-2. Rooms must touch (share walls), no gaps
-3. Add "floor" property to every room (0=ground, 1=first floor, etc.)
-4. Add furniture to every room
+🚨 CRITICAL QUALITY REQUIREMENTS 🚨
+1. Return ONLY valid JSON (no markdown, no text, no explanations)
+2. EVERY room MUST have "color" and "wallColor" properties (NEVER leave them empty!)
+3. Rooms MUST touch perfectly (share exact coordinates), NO gaps
+4. Add "floor" property to EVERY room (0=ground, 1=first floor, etc.)
+5. Add furniture to EVERY room (except hallways/stairwells)
+6. Use ONE cohesive color palette throughout the entire design
+7. Create visually attractive, modern designs
 
-JSON FORMAT (Single Floor):
+JSON FORMAT - PERFECT EXAMPLE:
 {
-  "name": "Floor Plan Name",
+  "name": "Modern 2-Bedroom Apartment",
   "rooms": [
     {
       "name": "Living Room",
       "points": [{"x": 0, "y": 0}, {"x": 7, "y": 0}, {"x": 7, "y": 6}, {"x": 0, "y": 6}],
-      "color": "#F5F5DC",
+      "color": "#D4A574",
       "floorTexture": "wood",
-      "wallColor": "#FFFFFF",
+      "wallColor": "#C19A6B",
       "dimensions": {"width": 7, "height": 6},
+      "floor": 0
+    },
+    {
+      "name": "Kitchen",
+      "points": [{"x": 7, "y": 0}, {"x": 11, "y": 0}, {"x": 11, "y": 4}, {"x": 7, "y": 4}],
+      "color": "#FFFFFF",
+      "floorTexture": "tile",
+      "wallColor": "#F5F5F5",
+      "dimensions": {"width": 4, "height": 4},
       "floor": 0
     }
   ],
-  "furniture": [{"type": "sofa-1", "name": "Modern Sofa", "position": {"x": 3.5, "y": 2}, "rotation": 0, "scale": {"x": 1, "y": 1}, "color": "#4A5568", "floor": 0}]
+  "furniture": [
+    {"type": "sofa-1", "name": "Modern Sofa", "position": {"x": 3.5, "y": 2}, "rotation": 0, "scale": {"x": 1, "y": 1}, "color": "#4A5568", "floor": 0},
+    {"type": "coffee-table-1", "name": "Coffee Table", "position": {"x": 3.5, "y": 3.5}, "rotation": 0, "scale": {"x": 1, "y": 1}, "color": "#8B4513", "floor": 0}
+  ]
 }
+
+NOTE: This example shows PERFECT formatting:
+- ✅ All rooms have color AND wallColor
+- ✅ Rooms touch perfectly (Living x=7 = Kitchen x=7)
+- ✅ All properties present
+- ✅ Furniture has colors
+- ✅ Cohesive color palette (warm earth tones)
 
 MULTI-FLOOR BUILDINGS (apartments, offices, hotels):
 For multi-story buildings, add "floor" property to each room (0=ground, 1=first, 2=second, etc.)
@@ -446,7 +468,42 @@ CHECKLIST:
 - Count your rooms: floor 0 count + floor 1 count + floor 2 count + floor 3 count = total
 - If total is less than requested, ADD MORE ROOMS!
 
+🎨 FINAL QUALITY CHECKLIST - VERIFY BEFORE RESPONDING:
+
+1. ✅ COLORS CHECK:
+   - Every room has "color" property? (floor color)
+   - Every room has "wallColor" property? (wall color)
+   - NO rooms with missing colors?
+   - NO rooms with #000000 (black) walls?
+   - All colors from ONE cohesive palette?
+
+2. ✅ GEOMETRY CHECK:
+   - Adjacent rooms share EXACT coordinates?
+   - NO gaps between rooms? (Room1 x=7 = Room2 x=7)
+   - NO overlaps?
+   - All points are valid numbers?
+
+3. ✅ PROPERTIES CHECK:
+   - Every room has "floor" property?
+   - Every room has "floorTexture" property?
+   - Every room has "dimensions" property?
+   - Every room has "points" array with 4+ points?
+
+4. ✅ FURNITURE CHECK:
+   - Every room (except hallways) has furniture?
+   - All furniture has "color" property?
+   - All furniture has "floor" property matching room?
+   - Furniture positioned INSIDE room bounds?
+
+5. ✅ DESIGN CHECK:
+   - Design looks modern and attractive?
+   - Colors are harmonious and professional?
+   - Room sizes are realistic (4-8m wide)?
+   - Layout makes logical sense?
+
 If ANY check fails, FIX IT NOW before responding!
+
+REMEMBER: Quality over speed. Take time to create a PERFECT design!
 
 STEP-BY-STEP LAYOUT PROCESS:
 
@@ -482,26 +539,76 @@ MANDATORY RULES:
   return JSON.parse(text);
 }
 
-// Validate and enhance AI-generated plan
+// Validate and enhance AI-generated plan with strict quality checks
 function validateAndFixPlan(aiPlan: any, prompt: string) {
   try {
     if (aiPlan.rooms && aiPlan.rooms.length > 0) {
       console.log(`Received ${aiPlan.rooms.length} rooms from AI`);
       
-      // Check if multi-floor was requested but not delivered
+      // STEP 1: Validate and fix all rooms
+      let allRooms = aiPlan.rooms.map((room: any) => {
+        // Ensure room has all required properties
+        const validatedRoom = {
+          ...room,
+          name: room.name || 'Room',
+          floor: room.floor || 0,
+          color: room.color || '#F5F5DC',
+          wallColor: room.wallColor || '#FFFFFF',
+          floorTexture: room.floorTexture || 'wood',
+          dimensions: room.dimensions || { width: 5, height: 4 },
+          points: room.points || [
+            { x: 0, y: 0 },
+            { x: room.dimensions?.width || 5, y: 0 },
+            { x: room.dimensions?.width || 5, y: room.dimensions?.height || 4 },
+            { x: 0, y: room.dimensions?.height || 4 }
+          ]
+        };
+        
+        // Validate points are valid numbers
+        validatedRoom.points = validatedRoom.points.map((p: any) => ({
+          x: typeof p.x === 'number' && !isNaN(p.x) ? p.x : 0,
+          y: typeof p.y === 'number' && !isNaN(p.y) ? p.y : 0
+        }));
+        
+        return validatedRoom;
+      });
+      
+      // STEP 2: Check for colorless walls and fix them
+      allRooms = allRooms.map((room: any) => {
+        if (!room.wallColor || room.wallColor === '#000000' || room.wallColor === 'undefined') {
+          // Assign color based on room type
+          const roomType = room.name.toLowerCase();
+          if (roomType.includes('living')) {
+            room.wallColor = '#C19A6B';
+            room.color = '#D4A574';
+          } else if (roomType.includes('kitchen')) {
+            room.wallColor = '#F5F5F5';
+            room.color = '#FFFFFF';
+          } else if (roomType.includes('bedroom')) {
+            room.wallColor = '#B8A07A';
+            room.color = '#C8B08D';
+          } else if (roomType.includes('bathroom')) {
+            room.wallColor = '#FAFAFA';
+            room.color = '#FFFFFF';
+          } else {
+            room.wallColor = '#E8E8E8';
+            room.color = '#F5F5DC';
+          }
+        }
+        return room;
+      });
+      
+      // STEP 3: Handle multi-floor requests
       const isMultiFloor = prompt.toLowerCase().match(/(\d+)[\s-]*(floor|story|level|storey)/);
       const requestedFloors = isMultiFloor ? parseInt(isMultiFloor[1]) : 1;
       
-      // Get unique floor numbers from AI response
-      const floorSet = new Set(aiPlan.rooms.map((r: any) => r.floor || 0));
+      const floorSet = new Set(allRooms.map((r: any) => r.floor || 0));
       const floorsGenerated = Array.from(floorSet);
       console.log(`Requested ${requestedFloors} floors, AI generated ${floorsGenerated.length} floors`);
       
-      // If AI didn't generate enough floors, replicate floor 0
-      let allRooms = [...aiPlan.rooms];
       if (requestedFloors > floorsGenerated.length && floorsGenerated.length === 1) {
         console.log(`Replicating floor 0 to create ${requestedFloors} floors`);
-        const floor0Rooms = aiPlan.rooms.filter((r: any) => (r.floor || 0) === 0);
+        const floor0Rooms = allRooms.filter((r: any) => (r.floor || 0) === 0);
         
         for (let floorNum = 1; floorNum < requestedFloors; floorNum++) {
           const newFloorRooms = floor0Rooms.map((room: any) => ({
@@ -517,7 +624,7 @@ function validateAndFixPlan(aiPlan: any, prompt: string) {
         console.log(`Total rooms after replication: ${allRooms.length}`);
       }
       
-      // Add furniture to rooms that don't have any
+      // STEP 4: Add furniture to empty rooms
       let allFurniture = aiPlan.furniture || [];
       allRooms.forEach((room: any) => {
         const roomFurniture = allFurniture.filter((f: any) => 
@@ -526,31 +633,27 @@ function validateAndFixPlan(aiPlan: any, prompt: string) {
         );
         
         if (roomFurniture.length === 0 && !room.name.toLowerCase().includes('hallway') && !room.name.toLowerCase().includes('stairwell')) {
-          // Add basic furniture based on room type
           const newFurniture = generateRoomFurniture(room);
           allFurniture = [...allFurniture, ...newFurniture];
         }
       });
       
+      // STEP 5: Validate furniture has colors
+      allFurniture = allFurniture.map((item: any) => ({
+        ...item,
+        position: item.position || { x: 0, y: 0 },
+        rotation: item.rotation || 0,
+        scale: item.scale || { x: 1, y: 1 },
+        color: item.color || '#8B4513',
+        floor: item.floor || 0
+      }));
+      
+      console.log(`✅ Validation complete: ${allRooms.length} rooms, ${allFurniture.length} furniture items`);
+      
       return {
         name: aiPlan.name || `AI Generated ${prompt.split(' ').slice(0, 3).join(' ')}`,
-        rooms: allRooms.map((room: any) => ({
-          ...room,
-          points: room.points || [
-            { x: 0, y: 0 },
-            { x: room.dimensions?.width || 5, y: 0 },
-            { x: room.dimensions?.width || 5, y: room.dimensions?.height || 4 },
-            { x: 0, y: room.dimensions?.height || 4 }
-          ],
-          floor: room.floor || 0
-        })),
-        furniture: allFurniture.map((item: any) => ({
-          ...item,
-          position: item.position || { x: 0, y: 0 },
-          rotation: item.rotation || 0,
-          scale: item.scale || { x: 1, y: 1 },
-          floor: item.floor || 0
-        }))
+        rooms: allRooms,
+        furniture: allFurniture
       };
     }
   } catch (error) {

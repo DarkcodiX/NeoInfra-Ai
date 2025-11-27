@@ -1,6 +1,6 @@
-import React, { Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Grid, Text } from '@react-three/drei';
+import React, { Suspense, useState, useRef } from 'react';
+import { Canvas, useThree } from '@react-three/fiber';
+import { OrbitControls, Grid, Text, TransformControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useFloorPlan } from '../lib/stores/useFloorPlan';
 import { furnitureCategories } from '../lib/furniture-data';
@@ -16,12 +16,21 @@ function adjustColorBrightness(color: string, amount: number): string {
 
 // 3D Room Component - modern walls with no overlaps
 function Room3D({ room }: { room: any }) {
+  const { setSelectedItem } = useFloorPlan();
+  const [hovered, setHovered] = useState(false);
+  
   const floorLevel = room.floor || 0;
   const floorHeight = 3.5; // 3.5m per floor
   const baseY = floorLevel * floorHeight;
   
   // Get room points in 3D space
   const roomPoints = room.points || [];
+  
+  // Handle click to select room
+  const handleClick = (e: any) => {
+    e.stopPropagation();
+    setSelectedItem(room.id);
+  };
 
   return (
     <group>
@@ -63,10 +72,13 @@ function Room3D({ room }: { room: any }) {
             rotation={[0, wallAngle, 0]}
             castShadow
             receiveShadow
+            onClick={handleClick}
+            onPointerOver={() => setHovered(true)}
+            onPointerOut={() => setHovered(false)}
           >
             <boxGeometry args={[wallLength - 0.02, 3, 0.12]} />
             <meshStandardMaterial 
-              color={isAccentWall ? adjustColorBrightness(wallColor, -0.15) : wallColor}
+              color={hovered ? adjustColorBrightness(wallColor, 0.1) : (isAccentWall ? adjustColorBrightness(wallColor, -0.15) : wallColor)}
               roughness={0.8}
               metalness={0.02}
             />
@@ -93,8 +105,11 @@ function Room3D({ room }: { room: any }) {
   );
 }
 
-// 3D Furniture Component with detailed models
+// 3D Furniture Component with detailed models and interactivity
 function Furniture3D({ item }: { item: any }) {
+  const { setSelectedItem, updateFurniture } = useFloorPlan();
+  const [hovered, setHovered] = useState(false);
+  
   const getFurnitureDimensions = (furnitureType: string) => {
     for (const category of furnitureCategories) {
       const found = category.items.find(f => f.id === furnitureType);
@@ -128,6 +143,18 @@ function Furniture3D({ item }: { item: any }) {
   const basePosition: [number, number, number] = [item.position.x, baseY + 0.02, item.position.y];
   const rotation: [number, number, number] = [0, (item.rotation || 0) * Math.PI / 180, 0];
   const color = getFurnitureColor(item.type, item.color);
+  
+  // Debug: Log position changes
+  React.useEffect(() => {
+    console.log('Furniture position updated:', item.id, basePosition);
+  }, [item.position.x, item.position.y, item.id]);
+  
+  // Handle click to select
+  const handleClick = (e: any) => {
+    e.stopPropagation();
+    console.log('Furniture clicked:', item.id, item.name);
+    setSelectedItem(item.id);
+  };
 
   // Create detailed furniture models based on type
   const renderFurniture = () => {
@@ -135,7 +162,7 @@ function Furniture3D({ item }: { item: any }) {
       case 'sofa-1':
       case 'sofa-2':
         return (
-          <group position={basePosition} rotation={rotation}>
+          <group>
             {/* Sofa frame (wooden) */}
             <mesh position={[0, scaledHeight * 0.15, 0]} castShadow receiveShadow>
               <boxGeometry args={[scaledWidth * 1.05, scaledHeight * 0.3, scaledDepth * 1.05]} />
@@ -181,7 +208,7 @@ function Furniture3D({ item }: { item: any }) {
       case 'bed-2':
       case 'bed-3':
         return (
-          <group position={basePosition} rotation={rotation}>
+          <group>
             {/* Bed frame base */}
             <mesh position={[0, scaledHeight * 0.15, 0]} castShadow receiveShadow>
               <boxGeometry args={[scaledWidth * 1.1, scaledHeight * 0.25, scaledDepth * 1.1]} />
@@ -231,7 +258,7 @@ function Furniture3D({ item }: { item: any }) {
       case 'coffee-table-1':
       case 'coffee-table-2':
         return (
-          <group position={basePosition} rotation={rotation}>
+          <group>
             {/* Table top with wood grain effect */}
             <mesh position={[0, scaledHeight - 0.04, 0]} castShadow receiveShadow>
               <boxGeometry args={[scaledWidth, 0.08, scaledDepth]} />
@@ -274,7 +301,7 @@ function Furniture3D({ item }: { item: any }) {
       case 'chair-1':
       case 'chair-2':
         return (
-          <group position={basePosition} rotation={rotation}>
+          <group>
             {/* Seat */}
             <mesh position={[0, scaledHeight * 0.5, 0]} castShadow receiveShadow>
               <boxGeometry args={[scaledWidth, 0.1, scaledDepth]} />
@@ -300,7 +327,7 @@ function Furniture3D({ item }: { item: any }) {
       case 'wardrobe-1':
       case 'wardrobe-2':
         return (
-          <group position={basePosition} rotation={rotation}>
+          <group>
             {/* Main body */}
             <mesh position={[0, scaledHeight * 0.5, 0]} castShadow receiveShadow>
               <boxGeometry args={[scaledWidth, scaledHeight, scaledDepth]} />
@@ -321,7 +348,7 @@ function Furniture3D({ item }: { item: any }) {
       case 'fridge-1':
       case 'fridge-2':
         return (
-          <group position={basePosition} rotation={rotation}>
+          <group>
             {/* Main body */}
             <mesh position={[0, scaledHeight * 0.5, 0]} castShadow receiveShadow>
               <boxGeometry args={[scaledWidth, scaledHeight, scaledDepth]} />
@@ -342,7 +369,7 @@ function Furniture3D({ item }: { item: any }) {
 
       case 'tv-1':
         return (
-          <group position={basePosition} rotation={rotation}>
+          <group>
             {/* TV Stand */}
             <mesh position={[0, scaledHeight * 0.5, 0]} castShadow receiveShadow>
               <boxGeometry args={[scaledWidth, scaledHeight, scaledDepth]} />
@@ -360,8 +387,7 @@ function Furniture3D({ item }: { item: any }) {
         // Default furniture as improved box
         return (
           <mesh
-            position={[basePosition[0], basePosition[1] + scaledHeight / 2, basePosition[2]]}
-            rotation={rotation}
+            position={[0, scaledHeight / 2, 0]}
             castShadow
             receiveShadow
           >
@@ -376,7 +402,159 @@ function Furniture3D({ item }: { item: any }) {
     }
   };
 
-  return renderFurniture();
+  const { selectedItem: globalSelectedItem } = useFloorPlan();
+  const isSelected = globalSelectedItem === item.id;
+  
+  return (
+    <group 
+      position={basePosition}
+      rotation={rotation}
+      onClick={handleClick}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+    >
+      {renderFurniture()}
+      {/* Hover indicator */}
+      {hovered && !isSelected && (
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[scaledWidth * 1.1, scaledHeight * 1.1, scaledDepth * 1.1]} />
+          <meshBasicMaterial color="#4A90E2" wireframe opacity={0.3} transparent />
+        </mesh>
+      )}
+      {/* Selection indicator - bright outline */}
+      {isSelected && (
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[scaledWidth * 1.15, scaledHeight * 1.15, scaledDepth * 1.15]} />
+          <meshBasicMaterial color="#FFD700" wireframe opacity={0.8} transparent />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+// Blender-style keyboard controls for moving objects
+function KeyboardControls() {
+  const { selectedItem, currentPlan, updateFurniture } = useFloorPlan();
+  const [moveMode, setMoveMode] = React.useState(false);
+  const [rotateMode, setRotateMode] = React.useState(false);
+  
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedItem || !currentPlan) {
+        console.log('No selection:', { selectedItem, hasPlan: !!currentPlan });
+        return;
+      }
+      
+      const furniture = currentPlan.furniture.find(f => f.id === selectedItem);
+      if (!furniture) {
+        console.log('Furniture not found for id:', selectedItem);
+        return;
+      }
+      
+      console.log('Key pressed:', e.key, 'Move mode:', moveMode, 'Rotate mode:', rotateMode);
+      
+      // Activate move mode with G or M key (like Blender)
+      if ((e.key === 'g' || e.key === 'G' || e.key === 'm' || e.key === 'M') && !moveMode && !rotateMode) {
+        e.preventDefault();
+        setMoveMode(true);
+        console.log('Move mode activated - use arrow keys to move');
+        return;
+      }
+      
+      // Activate rotate mode with R key
+      if ((e.key === 'r' || e.key === 'R') && !moveMode && !rotateMode) {
+        e.preventDefault();
+        setRotateMode(true);
+        console.log('Rotate mode activated - use arrow keys to rotate');
+        return;
+      }
+      
+      // Cancel with Escape or right-click
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMoveMode(false);
+        setRotateMode(false);
+        return;
+      }
+      
+      // Confirm with Enter or left-click
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        setMoveMode(false);
+        setRotateMode(false);
+        return;
+      }
+      
+      const step = e.shiftKey ? 0.5 : 0.1; // Shift for larger steps
+      
+      // Move mode controls
+      if (moveMode) {
+        let newPosition = { ...furniture.position };
+        
+        switch(e.key) {
+          case 'ArrowUp':
+            e.preventDefault();
+            newPosition.y -= step;
+            console.log('Moving up:', newPosition);
+            updateFurniture(selectedItem, { position: newPosition });
+            break;
+          case 'ArrowDown':
+            e.preventDefault();
+            newPosition.y += step;
+            console.log('Moving down:', newPosition);
+            updateFurniture(selectedItem, { position: newPosition });
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            newPosition.x -= step;
+            console.log('Moving left:', newPosition);
+            updateFurniture(selectedItem, { position: newPosition });
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            newPosition.x += step;
+            console.log('Moving right:', newPosition);
+            updateFurniture(selectedItem, { position: newPosition });
+            break;
+        }
+      }
+      
+      // Rotate mode controls
+      if (rotateMode) {
+        let newRotation = furniture.rotation || 0;
+        
+        switch(e.key) {
+          case 'ArrowLeft':
+            e.preventDefault();
+            newRotation = (newRotation - 15 + 360) % 360;
+            updateFurniture(selectedItem, { rotation: newRotation });
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            newRotation = (newRotation + 15) % 360;
+            updateFurniture(selectedItem, { rotation: newRotation });
+            break;
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedItem, currentPlan, updateFurniture, moveMode, rotateMode]);
+  
+  // Show mode indicator
+  if (moveMode || rotateMode) {
+    return (
+      <Html position={[0, 5, 0]} center>
+        <div className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg font-semibold">
+          {moveMode ? '🔄 MOVE MODE - Use Arrow Keys' : '🔄 ROTATE MODE - Use ← →'}
+          <div className="text-xs mt-1">Press Enter to confirm • Esc to cancel</div>
+        </div>
+      </Html>
+    );
+  }
+  
+  return null;
 }
 
 // 3D Scene Component
@@ -419,6 +597,9 @@ function Scene3D() {
 
   return (
     <>
+      {/* Keyboard Controls */}
+      <KeyboardControls />
+      
       {/* Professional Studio Lighting Setup */}
       <ambientLight intensity={0.4} color="#F5F5DC" />
       <directionalLight
@@ -469,7 +650,7 @@ function Scene3D() {
       
       {/* Furniture */}
       {furniture.map(item => (
-        <Furniture3D key={item.id} item={item} />
+        <Furniture3D key={`${item.id}-${item.position.x}-${item.position.y}-${item.rotation}`} item={item} />
       ))}
       
       {/* Grid helper */}
@@ -524,8 +705,14 @@ export function Canvas3D() {
       </Canvas>
       
       {/* 3D Controls Info */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-sm">
-        <p>Left-drag to rotate • Right-drag to pan • Scroll to zoom</p>
+      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-sm space-y-1">
+        <p className="font-semibold text-gray-700">🎥 Camera:</p>
+        <p className="text-gray-600">Left-drag rotate • Right-drag pan • Scroll zoom</p>
+        <p className="font-semibold text-gray-700 mt-2">🎯 Object Controls:</p>
+        <p className="text-gray-600">Click to select</p>
+        <p className="text-blue-600 font-medium">G or M → Move mode (arrow keys)</p>
+        <p className="text-blue-600 font-medium">R → Rotate mode (← →)</p>
+        <p className="text-gray-500 text-xs mt-1">Enter to confirm • Esc to cancel • Shift for larger steps</p>
       </div>
     </div>
   );
