@@ -8,7 +8,6 @@ export async function generateFloorPlan(prompt: string) {
   console.log("Generating AI floor plan...");
   
   try {
-    // Try AI generation first
     const aiPlan = await generateWithAI(prompt);
                             
     // Validate and fix the AI plan
